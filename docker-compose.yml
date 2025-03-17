@@ -3,6 +3,7 @@ services:
     build:
       context: ./api/
       dockerfile: Dockerfile
+      target: development
     env_file:
       - .env
     container_name: api
