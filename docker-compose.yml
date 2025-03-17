@@ -1,0 +1,48 @@
+services:
+  api:
+    build:
+      context: ./api/
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    container_name: api
+    volumes:
+      - ./api/:/go/src/app
+    tty: true
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_DB}
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: ./web/
+      dockerfile: Dockerfile
+      target: development
+    container_name: web
+    volumes:
+      - ./web/:/home/node/app
+    tty: true
+    ports:
+      - "5173:5173"
+
+  db:
+    image: postgres:17-alpine
+    container_name: db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
