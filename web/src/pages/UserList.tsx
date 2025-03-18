@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom'
 import {User} from '../types/User';
 import {fetchUsers} from '../services/api';
 
@@ -40,7 +41,11 @@ const UserList: React.FC = () => {
                 {users.map(user => (
                     <tr key={user.id}>
                         <td className="border p-2 text-left">{user.id}</td>
-                        <td className="border p-2 text-left">{user.name}</td>
+                        <td className="border p-2 text-left">
+                            <Link to={`/users/${user.id}`} className="text-blue-600 hover:underline">
+                                {user.name}
+                            </Link>
+                        </td>
                         <td className="border p-2 text-left">{user.created_at}</td>
                     </tr>
                 ))}
