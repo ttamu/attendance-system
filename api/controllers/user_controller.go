@@ -14,6 +14,16 @@ func GetUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
+func GetUser(c *gin.Context) {
+	id := c.Param("id")
+	var user models.User
+	if err := models.DB.Preload("Attendance").First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, user)
+}
+
 func CreateUser(c *gin.Context) {
 	var user models.User
 
