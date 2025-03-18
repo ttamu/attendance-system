@@ -13,6 +13,7 @@ func SetupRouter() *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"message": "Hello from Gin!"})
 	})
 
+	router.GET("/users", controllers.GetUsers)
 	router.POST("/users", controllers.CreateUser)
 	return router
 }

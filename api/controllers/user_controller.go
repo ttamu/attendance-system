@@ -6,6 +6,14 @@ import (
 	"net/http"
 )
 
+func GetUsers(c *gin.Context) {
+	var users []models.User
+	if err := models.DB.Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	c.JSON(http.StatusOK, users)
+}
+
 func CreateUser(c *gin.Context) {
 	var user models.User
 
