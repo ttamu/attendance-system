@@ -19,12 +19,18 @@ func main() {
 	time.Local = loc
 
 	db.InitDB()
-	if err := db.DB.AutoMigrate(&models.User{}, &models.Attendance{}); err != nil {
-		log.Fatalf("Failed to migrate database: %v", err)
+	if err := db.DB.AutoMigrate(
+		&models.Prefecture{},
+		&models.HealthInsuranceRate{},
+		&models.PensionInsuranceRate{},
+		&models.User{},
+		&models.Attendance{},
+	); err != nil {
+		log.Fatalf("failed to migrate database: %v", err)
 	}
 
 	router := routes.SetupRouter(cfg)
 	if err := router.Run(":8080"); err != nil {
-		log.Fatalf("Failed to run server: %v", err)
+		log.Fatalf("failed to run server: %v", err)
 	}
 }
