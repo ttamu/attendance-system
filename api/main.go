@@ -20,11 +20,12 @@ func main() {
 
 	db.InitDB()
 	if err := db.DB.AutoMigrate(
-		&models.Prefecture{},
+		&models.Attendance{},
+		&models.Company{},
 		&models.HealthInsuranceRate{},
 		&models.PensionInsuranceRate{},
+		&models.Prefecture{},
 		&models.User{},
-		&models.Attendance{},
 	); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
