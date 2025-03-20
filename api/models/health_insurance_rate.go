@@ -1,11 +1,11 @@
 package models
 
-import "gorm.io/gorm"
+import "time"
 
 type HealthInsuranceRate struct {
-	gorm.Model
-	PrefectureID        uint
+	ID                  uint `gorm:"primaryKey" json:"id"`
 	CompanyID           uint `json:"company_id"`
+	PrefectureID        uint
 	Grade               string
 	MonthlyAmount       int
 	MinMonthlyAmount    int
@@ -14,4 +14,6 @@ type HealthInsuranceRate struct {
 	HealthHalfNonCare   float64
 	HealthTotalWithCare float64
 	HealthHalfWithCare  float64
+	CreatedAt           time.Time `json:"created_at"`
+	UpdatedAt           time.Time `json:"updated_at"`
 }
