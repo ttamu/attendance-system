@@ -8,6 +8,7 @@ import (
 	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -107,25 +108,22 @@ func seedInsuranceRates(db *gorm.DB, filePath string) error {
 			log.Printf("failed to get rows in sheet %s: %v", sheetName, err)
 			continue
 		}
+
 		startRow := 12
-		endRow := len(rows)
+		endRow := 61
 
 		for rowIdx := startRow; rowIdx <= endRow; rowIdx++ {
 			rowData := rows[rowIdx-1]
-			if len(rowData) < 10 {
-				continue
-			}
-
 			grade := strings.ToValidUTF8(strings.TrimSpace(rowData[0]), "")
-			if grade == "" {
-				continue
-			}
 
 			minStr := rmComma(strings.TrimSpace(rowData[2]))
+			maxStr := rmComma(strings.TrimSpace(rowData[4]))
 			if minStr == "" {
 				minStr = "0"
 			}
-			maxStr := rmComma(strings.TrimSpace(rowData[4]))
+			if maxStr == "" {
+				maxStr = strconv.FormatInt(math.MaxInt64, 10)
+			}
 			minAmt, err1 := strconv.Atoi(minStr)
 			maxAmt, err2 := strconv.Atoi(maxStr)
 			if err1 != nil || err2 != nil {
@@ -134,10 +132,10 @@ func seedInsuranceRates(db *gorm.DB, filePath string) error {
 			}
 
 			var hTotalNonCare, hHalfNonCare, hTotalWithCare, hHalfWithCare float64
-			hTotalNonCare, _ = strconv.ParseFloat(strings.TrimSpace(rowData[5]), 64)
-			hHalfNonCare, _ = strconv.ParseFloat(strings.TrimSpace(rowData[6]), 64)
-			hTotalWithCare, _ = strconv.ParseFloat(strings.TrimSpace(rowData[7]), 64)
-			hHalfWithCare, _ = strconv.ParseFloat(strings.TrimSpace(rowData[8]), 64)
+			hTotalNonCare, _ = strconv.ParseFloat(rmComma(strings.TrimSpace(rowData[5])), 64)
+			hHalfNonCare, _ = strconv.ParseFloat(rmComma(strings.TrimSpace(rowData[6])), 64)
+			hTotalWithCare, _ = strconv.ParseFloat(rmComma(strings.TrimSpace(rowData[7])), 64)
+			hHalfWithCare, _ = strconv.ParseFloat(rmComma(strings.TrimSpace(rowData[8])), 64)
 
 			if strings.Contains(grade, "(") || strings.Contains(grade, "（") {
 				runes := []rune(grade)
@@ -154,9 +152,6 @@ func seedInsuranceRates(db *gorm.DB, filePath string) error {
 						break
 					}
 				}
-				var pTotal, pHalf float64
-				pTotal, _ = strconv.ParseFloat(strings.TrimSpace(rowData[9]), 64)
-				pHalf, _ = strconv.ParseFloat(strings.TrimSpace(rowData[10]), 64)
 
 				var healthGrade, pensionGrade string
 				if leftIdx != -1 && rightIdx != -1 && rightIdx > leftIdx {
@@ -166,6 +161,10 @@ func seedInsuranceRates(db *gorm.DB, filePath string) error {
 					healthGrade = grade
 					pensionGrade = ""
 				}
+
+				var pTotal, pHalf float64
+				pTotal, _ = strconv.ParseFloat(rmComma(strings.TrimSpace(rowData[9])), 64)
+				pHalf, _ = strconv.ParseFloat(rmComma(strings.TrimSpace(rowData[10])), 64)
 
 				hRecord := models.HealthInsuranceRate{
 					PrefectureID:        pref.ID,
