@@ -6,6 +6,7 @@ type HealthInsuranceRate struct {
 	gorm.Model
 	PrefectureID        uint
 	Grade               string
+	MonthlyAmount       int
 	MinMonthlyAmount    int
 	MaxMonthlyAmount    int
 	HealthTotalNonCare  float64

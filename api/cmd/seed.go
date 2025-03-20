@@ -72,7 +72,6 @@ func seedInsuranceRates(db *gorm.DB, filePath string) error {
 	}
 
 	for _, sheetName := range sheetList {
-		log.Printf("Processing sheet %s\n", sheetName)
 		var pref models.Prefecture
 		if err := db.Where("name = ?", sheetName).First(&pref).Error; err != nil {
 			return fmt.Errorf("prefecture '%s' not found", sheetName)
@@ -115,6 +114,12 @@ func seedInsuranceRates(db *gorm.DB, filePath string) error {
 		for rowIdx := startRow; rowIdx <= endRow; rowIdx++ {
 			rowData := rows[rowIdx-1]
 			grade := strings.ToValidUTF8(strings.TrimSpace(rowData[0]), "")
+			monthlyAmountStr := rmComma(strings.TrimSpace(rowData[1]))
+			monthlyAmount, errMA := strconv.Atoi(monthlyAmountStr)
+			if errMA != nil {
+				log.Printf("error: invalid monthly amount at row %d in sheet %s: %v", rowIdx, sheetName, errMA)
+				continue
+			}
 
 			minStr := rmComma(strings.TrimSpace(rowData[2]))
 			maxStr := rmComma(strings.TrimSpace(rowData[4]))
@@ -169,6 +174,7 @@ func seedInsuranceRates(db *gorm.DB, filePath string) error {
 				hRecord := models.HealthInsuranceRate{
 					PrefectureID:        pref.ID,
 					Grade:               healthGrade,
+					MonthlyAmount:       monthlyAmount,
 					MinMonthlyAmount:    minAmt,
 					MaxMonthlyAmount:    maxAmt,
 					HealthTotalNonCare:  hTotalNonCare,
@@ -184,6 +190,7 @@ func seedInsuranceRates(db *gorm.DB, filePath string) error {
 					pRecord := models.PensionInsuranceRate{
 						PrefectureID:     pref.ID,
 						Grade:            pensionGrade,
+						MonthlyAmount:    monthlyAmount,
 						MinMonthlyAmount: minAmt,
 						MaxMonthlyAmount: maxAmt,
 						PensionTotal:     pTotal,
@@ -197,6 +204,7 @@ func seedInsuranceRates(db *gorm.DB, filePath string) error {
 				hRecord := models.HealthInsuranceRate{
 					PrefectureID:        pref.ID,
 					Grade:               grade,
+					MonthlyAmount:       monthlyAmount,
 					MinMonthlyAmount:    minAmt,
 					MaxMonthlyAmount:    maxAmt,
 					HealthTotalNonCare:  hTotalNonCare,
