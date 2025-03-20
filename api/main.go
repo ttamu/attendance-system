@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/t2469/labor-management-system.git/config"
+	"github.com/t2469/labor-management-system.git/db"
 	"github.com/t2469/labor-management-system.git/models"
 	"github.com/t2469/labor-management-system.git/routes"
 	"log"
@@ -17,8 +18,8 @@ func main() {
 	}
 	time.Local = loc
 
-	models.InitDB()
-	if err := models.DB.AutoMigrate(&models.User{}, &models.Attendance{}); err != nil {
+	db.InitDB()
+	if err := db.DB.AutoMigrate(&models.User{}, &models.Attendance{}); err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 

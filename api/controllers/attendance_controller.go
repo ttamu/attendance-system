@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/t2469/labor-management-system.git/db"
 	"github.com/t2469/labor-management-system.git/models"
 	"net/http"
 	"time"
@@ -10,7 +11,7 @@ import (
 func CreateAttendance(c *gin.Context) {
 	id := c.Param("id")
 	var user models.User
-	if err := models.DB.First(&user, id).Error; err != nil {
+	if err := db.DB.First(&user, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -26,7 +27,7 @@ func CreateAttendance(c *gin.Context) {
 		attendance.CheckIn = time.Now()
 	}
 
-	if err := models.DB.Create(&attendance).Error; err != nil {
+	if err := db.DB.Create(&attendance).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
