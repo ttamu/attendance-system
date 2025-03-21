@@ -24,6 +24,12 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 		users.POST("", controllers.CreateUser)
 		users.POST("/:id/attendances", controllers.CreateAttendance)
 	}
+
+	companies := router.Group("/companies")
+	{
+		companies.POST("", controllers.CreateCompany)
+	}
+
 	return router
 }
 
