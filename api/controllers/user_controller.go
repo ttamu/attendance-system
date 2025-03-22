@@ -57,3 +57,20 @@ func CalculateUserInsurance(c *gin.Context) {
 
 	c.JSON(http.StatusOK, resp)
 }
+
+func CalculateUserPension(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	resp, err := services.CalculatePensionForUser(db.DB, uint(userID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
