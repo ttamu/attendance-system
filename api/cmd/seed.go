@@ -20,12 +20,13 @@ func main() {
 	db.InitDB()
 	if err := db.DB.AutoMigrate(
 		&models.Prefecture{},
-		&models.HealthInsuranceRate{},
-		&models.PensionInsuranceRate{},
+		&models.Company{},
 		&models.Employee{},
 		&models.Attendance{},
+		&models.HealthInsuranceRate{},
+		&models.PensionInsuranceRate{},
 	); err != nil {
-		log.Fatalf("failed to migrate: %v", err)
+		log.Fatalf("failed to migrate database: %v", err)
 	}
 
 	if err := seed.SeedPrefectures(db.DB); err != nil {
