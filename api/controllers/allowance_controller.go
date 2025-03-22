@@ -21,3 +21,18 @@ func CrateAllowanceType(c *gin.Context) {
 
 	c.JSON(http.StatusOK, at)
 }
+
+func CreateEmployeeAllowance(c *gin.Context) {
+	var ea models.EmployeeAllowance
+	if err := c.ShouldBindJSON(&ea); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := db.DB.Create(&ea).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, ea)
+}

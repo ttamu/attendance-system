@@ -38,6 +38,7 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 	allowances := router.Group("/allowances")
 	{
 		allowances.POST("type", controllers.CrateAllowanceType)
+		allowances.POST("", controllers.CreateEmployeeAllowance)
 	}
 	return router
 }
