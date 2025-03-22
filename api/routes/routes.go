@@ -22,9 +22,12 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 		employees.GET("", controllers.GetEmployees)
 		employees.GET("/:id", controllers.GetEmployee)
 		employees.POST("", controllers.CreateEmployee)
+
 		employees.POST("/:id/attendances", controllers.CreateAttendance)
+
 		employees.GET("/:id/insurance", controllers.CalculateEmployeeInsurance)
 		employees.GET("/:id/pension", controllers.CalculateEmployeePension)
+		employees.GET("/:id/payroll", controllers.CalculateEmployeePayroll)
 	}
 
 	companies := router.Group("/companies")
