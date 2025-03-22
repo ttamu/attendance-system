@@ -26,6 +26,8 @@ func main() {
 		&models.Attendance{},
 		&models.HealthInsuranceRate{},
 		&models.PensionInsuranceRate{},
+		&models.AllowanceType{},
+		&models.EmployeeAllowance{},
 	); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}

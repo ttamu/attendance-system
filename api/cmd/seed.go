@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/t2469/labor-management-system.git/config"
 	"github.com/t2469/labor-management-system.git/db"
-	"github.com/t2469/labor-management-system.git/models"
 	"github.com/t2469/labor-management-system.git/seed"
 	"log"
 	"time"
@@ -16,18 +15,7 @@ func main() {
 		panic(err)
 	}
 	time.Local = loc
-
 	db.InitDB()
-	if err := db.DB.AutoMigrate(
-		&models.Prefecture{},
-		&models.Company{},
-		&models.Employee{},
-		&models.Attendance{},
-		&models.HealthInsuranceRate{},
-		&models.PensionInsuranceRate{},
-	); err != nil {
-		log.Fatalf("failed to migrate database: %v", err)
-	}
 
 	if err := seed.SeedPrefectures(db.DB); err != nil {
 		log.Fatalf("seedPrefectures failed: %v", err)
