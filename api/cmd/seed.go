@@ -235,7 +235,7 @@ func main() {
 		&models.Prefecture{},
 		&models.HealthInsuranceRate{},
 		&models.PensionInsuranceRate{},
-		&models.User{},
+		&models.Employee{},
 		&models.Attendance{},
 	); err != nil {
 		log.Fatalf("failed to migrate: %v", err)

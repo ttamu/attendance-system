@@ -9,7 +9,7 @@ import (
 
 // PensionCalculationResponse は、厚生年金保険料計算結果のレスポンス形式です。
 type PensionCalculationResponse struct {
-	UserName                string  `json:"user_name"`
+	EmployeeName            string  `json:"employee_name"`
 	CompanyName             string  `json:"company_name"`
 	PrefectureName          string  `json:"prefecture_name"`
 	Grade                   string  `json:"grade"`
@@ -20,17 +20,17 @@ type PensionCalculationResponse struct {
 	Age                     int     `json:"age"`
 }
 
-func CalculatePensionForUser(db *gorm.DB, userID uint) (PensionCalculationResponse, error) {
-	var user models.User
-	if err := db.Preload("Company.Prefecture.PensionInsuranceRates").First(&user, userID).Error; err != nil {
+func CalculatePension(db *gorm.DB, employeeID uint) (PensionCalculationResponse, error) {
+	var employee models.Employee
+	if err := db.Preload("Company.Prefecture.PensionInsuranceRates").First(&employee, employeeID).Error; err != nil {
 		return PensionCalculationResponse{}, err
 	}
 
-	age := calculateAge(user.DateOfBirth)
+	age := calculateAge(employee.DateOfBirth)
 
-	pref := user.Company.Prefecture
+	pref := employee.Company.Prefecture
 	if pref.ID == 0 {
-		return PensionCalculationResponse{}, errors.New("prefecture not found for user's company")
+		return PensionCalculationResponse{}, errors.New("prefecture not found for employee's company")
 	}
 
 	rates := pref.PensionInsuranceRates
@@ -44,28 +44,28 @@ func CalculatePensionForUser(db *gorm.DB, userID uint) (PensionCalculationRespon
 
 	var selectedRate *models.PensionInsuranceRate
 	for i, rate := range rates {
-		if user.MonthlySalary >= rate.MinMonthlyAmount && user.MonthlySalary <= rate.MaxMonthlyAmount {
+		if employee.MonthlySalary >= rate.MinMonthlyAmount && employee.MonthlySalary <= rate.MaxMonthlyAmount {
 			selectedRate = &rates[i]
 			break
 		}
 	}
 	if selectedRate == nil {
-		return PensionCalculationResponse{}, errors.New("no matching rates found for user's company")
+		return PensionCalculationResponse{}, errors.New("no matching rates found for employee's company")
 	}
 
 	total := selectedRate.PensionTotal
-	employee := selectedRate.PensionHalf
-	employer := total - employee
+	employeePension := selectedRate.PensionHalf
+	employerPension := total - employeePension
 
 	resp := PensionCalculationResponse{
-		UserName:                user.Name,
-		CompanyName:             user.Company.Name,
+		EmployeeName:            employee.Name,
+		CompanyName:             employee.Company.Name,
 		PrefectureName:          pref.Name,
 		Grade:                   selectedRate.Grade,
 		CalculatedMonthlyAmount: selectedRate.MonthlyAmount,
 		PensionTotal:            total,
-		EmployeePension:         employee,
-		EmployerPension:         employer,
+		EmployeePension:         employeePension,
+		EmployerPension:         employerPension,
 		Age:                     age,
 	}
 	return resp, nil

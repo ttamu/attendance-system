@@ -2,7 +2,7 @@ package models
 
 import "time"
 
-type User struct {
+type Employee struct {
 	ID            uint         `gorm:"primaryKey" json:"id"`
 	CompanyID     uint         `json:"company_id"`
 	Company       Company      `json:"company" gorm:"foreignKey:CompanyID"`
@@ -11,5 +11,5 @@ type User struct {
 	DateOfBirth   time.Time    `json:"date_of_birth"`
 	CreatedAt     time.Time    `json:"created_at"`
 	UpdatedAt     time.Time    `json:"updated_at"`
-	Attendances   []Attendance `json:"attendances,omitempty" gorm:"foreignKey:UserID"`
+	Attendances   []Attendance `json:"attendances,omitempty" gorm:"foreignKey:EmployeeID"`
 }
