@@ -1,16 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom'
-import {User} from '../types/User';
-import {fetchUsers} from '../services/api';
+import {Employee} from '../types/Employee.ts';
+import {fetchEmployees} from '../services/api';
 
-const UserList: React.FC = () => {
-    const [users, setUsers] = useState<User[]>([]);
+const EmployeeList: React.FC = () => {
+    const [users, setUsers] = useState<Employee[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const loadUsers = async () => {
             try {
-                const usersData = await fetchUsers();
+                const usersData = await fetchEmployees();
                 setUsers(usersData);
             } catch (error) {
                 console.error('Error fetching users:', error);
@@ -42,7 +42,7 @@ const UserList: React.FC = () => {
                     <tr key={user.id}>
                         <td className="border p-2 text-left">{user.id}</td>
                         <td className="border p-2 text-left">
-                            <Link to={`/users/${user.id}`} className="text-blue-600 hover:underline">
+                            <Link to={`/employees/${user.id}`} className="text-blue-600 hover:underline">
                                 {user.name}
                             </Link>
                         </td>
@@ -55,4 +55,4 @@ const UserList: React.FC = () => {
     );
 };
 
-export default UserList;
+export default EmployeeList;

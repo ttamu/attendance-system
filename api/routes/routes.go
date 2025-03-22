@@ -17,14 +17,17 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"message": "Hello from Gin!"})
 	})
 
-	users := router.Group("/users")
+	employees := router.Group("/employees")
 	{
-		users.GET("", controllers.GetUsers)
-		users.GET("/:id", controllers.GetUser)
-		users.POST("", controllers.CreateUser)
-		users.POST("/:id/attendances", controllers.CreateAttendance)
-		users.GET("/:id/insurance", controllers.CalculateUserInsurance)
-		users.GET("/:id/pension", controllers.CalculateUserPension)
+		employees.GET("", controllers.GetEmployees)
+		employees.GET("/:id", controllers.GetEmployee)
+		employees.POST("", controllers.CreateEmployee)
+
+		employees.POST("/:id/attendances", controllers.CreateAttendance)
+
+		employees.GET("/:id/insurance", controllers.CalculateEmployeeInsurance)
+		employees.GET("/:id/pension", controllers.CalculateEmployeePension)
+		employees.GET("/:id/payroll", controllers.CalculateEmployeePayroll)
 	}
 
 	companies := router.Group("/companies")

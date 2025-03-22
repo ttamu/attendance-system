@@ -7,36 +7,38 @@ import (
 	"sort"
 )
 
-type InsuranceCalculationResponse struct {
-	UserName                string  `json:"user_name"`
+type HealthInsuranceResponse struct {
+	EmployeeName            string  `json:"employee_name"`
 	CompanyName             string  `json:"company_name"`
 	PrefectureName          string  `json:"prefecture_name"`
 	Grade                   string  `json:"grade"`
 	CalculatedMonthlyAmount int     `json:"calculated_monthly_amount"`
-	TotalPremium            float64 `json:"total_premium"`
-	EmployeePremium         float64 `json:"employee_premium"`
-	EmployerPremium         float64 `json:"employer_premium"`
-	Age                     int     `json:"age"`
+	HealthTotal             float64 `json:"health_total"`
+	EmployeeHealth          float64 `json:"employee_health"`
+	EmployerHealth          float64 `json:"employer_health"`
 	WithCare                bool    `json:"with_care"`
+	Age                     int     `json:"age"`
 }
 
-func CalculateInsuranceForUser(db *gorm.DB, userID uint) (InsuranceCalculationResponse, error) {
-	var user models.User
-	if err := db.Preload("Company.Prefecture.HealthInsuranceRates").First(&user, userID).Error; err != nil {
-		return InsuranceCalculationResponse{}, err
+func CalculateInsurance(db *gorm.DB, employeeID uint) (HealthInsuranceResponse, error) {
+	var employee models.Employee
+	if err := db.
+		Preload("Company.Prefecture.HealthInsuranceRates").
+		First(&employee, employeeID).Error; err != nil {
+		return HealthInsuranceResponse{}, err
 	}
 
-	age := calculateAge(user.DateOfBirth)
-	withCare := 40 <= age && age < 65
+	age := calculateAge(employee.DateOfBirth)
+	withCare := age >= 40 && age < 65
 
-	pref := user.Company.Prefecture
+	pref := employee.Company.Prefecture
 	if pref.ID == 0 {
-		return InsuranceCalculationResponse{}, errors.New("prefecture not found for user's company")
+		return HealthInsuranceResponse{}, errors.New("prefecture not found for employee's company")
 	}
 
 	rates := pref.HealthInsuranceRates
 	if len(rates) == 0 {
-		return InsuranceCalculationResponse{}, errors.New("no health insurance rates configured for the prefecture")
+		return HealthInsuranceResponse{}, errors.New("no health insurance rates configured for the prefecture")
 	}
 
 	sort.Slice(rates, func(i, j int) bool {
@@ -45,35 +47,35 @@ func CalculateInsuranceForUser(db *gorm.DB, userID uint) (InsuranceCalculationRe
 
 	var selectedRate *models.HealthInsuranceRate
 	for i, rate := range rates {
-		if rate.MinMonthlyAmount <= user.MonthlySalary && user.MonthlySalary <= rate.MaxMonthlyAmount {
+		if rate.MinMonthlyAmount <= employee.MonthlySalary && employee.MonthlySalary <= rate.MaxMonthlyAmount {
 			selectedRate = &rates[i]
 			break
 		}
 	}
 
 	if selectedRate == nil {
-		return InsuranceCalculationResponse{}, errors.New("no matching rates found for user's company")
+		return HealthInsuranceResponse{}, errors.New("no matching rates found for employee's company")
 	}
 
-	var totalPremium, employeePremium float64
+	var totalHealth, employeeHealth float64
 	if withCare {
-		totalPremium = selectedRate.HealthTotalWithCare
-		employeePremium = selectedRate.HealthHalfWithCare
+		totalHealth = selectedRate.HealthTotalWithCare
+		employeeHealth = selectedRate.HealthHalfWithCare
 	} else {
-		totalPremium = selectedRate.HealthTotalNonCare
-		employeePremium = selectedRate.HealthHalfNonCare
+		totalHealth = selectedRate.HealthTotalNonCare
+		employeeHealth = selectedRate.HealthHalfNonCare
 	}
-	employerPremium := totalPremium - employeePremium
+	employerHealth := totalHealth - employeeHealth
 
-	resp := InsuranceCalculationResponse{
-		UserName:                user.Name,
-		CompanyName:             user.Company.Name,
+	resp := HealthInsuranceResponse{
+		EmployeeName:            employee.Name,
+		CompanyName:             employee.Company.Name,
 		PrefectureName:          pref.Name,
 		Grade:                   selectedRate.Grade,
 		CalculatedMonthlyAmount: selectedRate.MonthlyAmount,
-		TotalPremium:            totalPremium,
-		EmployeePremium:         employeePremium,
-		EmployerPremium:         employerPremium,
+		HealthTotal:             totalHealth,
+		EmployeeHealth:          employeeHealth,
+		EmployerHealth:          employerHealth,
 		Age:                     age,
 		WithCare:                withCare,
 	}

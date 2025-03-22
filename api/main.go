@@ -22,7 +22,7 @@ func main() {
 	if err := db.DB.AutoMigrate(
 		&models.Prefecture{},
 		&models.Company{},
-		&models.User{},
+		&models.Employee{},
 		&models.Attendance{},
 		&models.HealthInsuranceRate{},
 		&models.PensionInsuranceRate{},

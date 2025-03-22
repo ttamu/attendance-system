@@ -1,15 +1,15 @@
 import React from 'react'
 import './App.css'
-import UserList from './pages/UserList'
-import UserDetail from './pages/UserDetail'
+import EmployeeList from './pages/EmployeeList.tsx'
+import EmployeeDetail from './pages/EmployeeDetail.tsx'
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 
 const App: React.FC = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<UserList/>}/>
-                <Route path="/users/:id" element={<UserDetail/>}/>
+                <Route path="/" element={<EmployeeList/>}/>
+                <Route path="/employees/:id" element={<EmployeeDetail/>}/>
             </Routes>
         </BrowserRouter>
     );

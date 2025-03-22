@@ -10,8 +10,8 @@ import (
 
 func CreateAttendance(c *gin.Context) {
 	id := c.Param("id")
-	var user models.User
-	if err := db.DB.First(&user, id).Error; err != nil {
+	var employee models.Employee
+	if err := db.DB.First(&employee, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -22,7 +22,7 @@ func CreateAttendance(c *gin.Context) {
 		return
 	}
 
-	attendance.UserID = user.ID
+	attendance.EmployeeID = employee.ID
 	if attendance.CheckIn.IsZero() {
 		attendance.CheckIn = time.Now()
 	}
