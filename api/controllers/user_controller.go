@@ -4,7 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/t2469/labor-management-system.git/db"
 	"github.com/t2469/labor-management-system.git/models"
+	"github.com/t2469/labor-management-system.git/services"
 	"net/http"
+	"strconv"
 )
 
 func GetUsers(c *gin.Context) {
@@ -38,4 +40,20 @@ func CreateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
+}
+
+func CalculateUserInsurance(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	resp, err := services.CalculateInsuranceForUser(db.DB, uint(userID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
