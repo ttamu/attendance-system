@@ -1,11 +1,11 @@
 import React, {FormEvent, useEffect, useState} from 'react'
 import {useParams} from 'react-router-dom'
-import {User} from '../types/User'
-import {createAttendance, fetchUserById} from '../services/api'
+import {Employee} from '../types/Employee.ts'
+import {createAttendance, fetchEmployeeById} from '../services/api'
 
-const UserDetail: React.FC = () => {
+const EmployeeDetail: React.FC = () => {
     const {id} = useParams<{ id: string }>();
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<Employee | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
     const [checkIn, setCheckIn] = useState<string>('');
@@ -15,7 +15,7 @@ const UserDetail: React.FC = () => {
     useEffect(() => {
         const loadUser = async () => {
             try {
-                const data = await fetchUserById(id!);
+                const data = await fetchEmployeeById(id!);
                 setUser(data);
             } catch (err: any) {
                 setError(err.message);
@@ -123,4 +123,4 @@ const UserDetail: React.FC = () => {
     );
 };
 
-export default UserDetail
+export default EmployeeDetail

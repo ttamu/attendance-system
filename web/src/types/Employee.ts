@@ -6,7 +6,7 @@ export interface Attendance {
     updated_at: string;
 }
 
-export interface User {
+export interface Employee {
     id: number;
     name: string;
     created_at: string;

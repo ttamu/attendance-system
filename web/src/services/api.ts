@@ -1,15 +1,15 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-export const fetchUsers = async () => {
-    const response = await fetch(`${API_BASE_URL}/users`);
+export const fetchEmployees = async () => {
+    const response = await fetch(`${API_BASE_URL}/employees`);
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
     return response.json();
 }
 
-export const fetchUserById = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/users/${id}`);
+export const fetchEmployeeById = async (id: string) => {
+    const response = await fetch(`${API_BASE_URL}/employees/${id}`);
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -17,7 +17,7 @@ export const fetchUserById = async (id: string) => {
 }
 
 export const createAttendance = async (userId: string, data: { check_in: string; check_out: string }) => {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/attendances`, {
+    const response = await fetch(`${API_BASE_URL}/employees/${userId}/attendances`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
