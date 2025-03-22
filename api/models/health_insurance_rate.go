@@ -4,7 +4,6 @@ import "time"
 
 type HealthInsuranceRate struct {
 	ID                  uint `gorm:"primaryKey" json:"id"`
-	CompanyID           uint `json:"company_id"`
 	PrefectureID        uint
 	Grade               string
 	MonthlyAmount       int
