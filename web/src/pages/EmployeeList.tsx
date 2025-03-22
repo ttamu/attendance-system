@@ -42,7 +42,7 @@ const EmployeeList: React.FC = () => {
                     <tr key={user.id}>
                         <td className="border p-2 text-left">{user.id}</td>
                         <td className="border p-2 text-left">
-                            <Link to={`/users/${user.id}`} className="text-blue-600 hover:underline">
+                            <Link to={`/employees/${user.id}`} className="text-blue-600 hover:underline">
                                 {user.name}
                             </Link>
                         </td>
