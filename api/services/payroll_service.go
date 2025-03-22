@@ -64,6 +64,7 @@ func CalculatePayroll(db *gorm.DB, employeeID uint) (PayrollCalculationResponse,
 	resp := PayrollCalculationResponse{
 		EmployeeName:    healthResp.EmployeeName,
 		GrossSalary:     grossSalary,
+		TotalAllowance:  totalAllowance,
 		HealthInsurance: healthResp.EmployeeHealth,
 		Pension:         pensionResp.EmployeePension,
 		TotalDeductions: totalDeductions,
