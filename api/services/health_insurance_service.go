@@ -2,11 +2,9 @@ package services
 
 import (
 	"errors"
-	"sort"
-	"time"
-
 	"github.com/t2469/labor-management-system.git/models"
 	"gorm.io/gorm"
+	"sort"
 )
 
 type InsuranceCalculationResponse struct {
@@ -80,13 +78,4 @@ func CalculateInsuranceForUser(db *gorm.DB, userID uint) (InsuranceCalculationRe
 		WithCare:                withCare,
 	}
 	return resp, nil
-}
-
-func calculateAge(dob time.Time) int {
-	now := time.Now()
-	age := now.Year() - dob.Year()
-	if now.YearDay() < dob.YearDay() {
-		age--
-	}
-	return age
 }
