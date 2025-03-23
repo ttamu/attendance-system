@@ -44,7 +44,7 @@ const EmployeeDetailPage: React.FC = () => {
             <CardHeader className="flex flex-row items-center gap-2 border-b pb-4">
                 <BadgeInfo className="w-5 h-5 text-blue-600"/>
                 <CardTitle className="text-2xl font-bold text-gray-800">
-                    {employee.name}の詳細
+                    {employee.name}さんの詳細
                 </CardTitle>
             </CardHeader>
 
