@@ -5,6 +5,8 @@ import {Employee} from "../types/Employee";
 import PayrollDisplay from "../components/PayrollDisplay";
 import AttendanceList from "../components/AttendanceList";
 import AttendanceForm from "../components/AttendanceForm";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {BadgeInfo, CalendarCheck2, ClipboardList, Wallet} from "lucide-react";
 
 const EmployeeDetailPage: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -38,27 +40,43 @@ const EmployeeDetailPage: React.FC = () => {
     if (!employee) return <div className="text-center mt-8">Not Found</div>;
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">{employee.name}の詳細</h1>
+        <Card className="max-w-4xl mx-auto shadow-md bg-white">
+            <CardHeader className="flex flex-row items-center gap-2 border-b pb-4">
+                <BadgeInfo className="w-5 h-5 text-blue-600"/>
+                <CardTitle className="text-2xl font-bold text-gray-800">
+                    {employee.name}の詳細
+                </CardTitle>
+            </CardHeader>
 
-            {/* 給与計算結果表示 */}
-            <section className="mb-8">
-                <h2 className="text-xl font-semibold mb-2">給与計算結果</h2>
-                <PayrollDisplay employeeId={Number(id)} year={2025} month={3}/>
-            </section>
+            <CardContent className="space-y-8 pt-4">
+                {/* 給与計算 */}
+                <section>
+                    <div className="flex items-center gap-2 mb-2">
+                        <Wallet className="w-5 h-5 text-blue-600"/>
+                        <h2 className="text-xl font-semibold text-gray-800">給与計算結果</h2>
+                    </div>
+                    <PayrollDisplay employeeId={Number(id)} year={2025} month={3}/>
+                </section>
 
-            {/* 勤怠一覧表示 */}
-            <section className="mb-8">
-                <h2 className="text-xl font-semibold mb-2">勤怠一覧</h2>
-                <AttendanceList attendances={employee.attendances || []}/>
-            </section>
+                {/* 勤怠一覧 */}
+                <section>
+                    <div className="flex items-center gap-2 mb-2">
+                        <ClipboardList className="w-5 h-5 text-blue-600"/>
+                        <h2 className="text-xl font-semibold text-gray-800">勤怠一覧</h2>
+                    </div>
+                    <AttendanceList attendances={employee.attendances || []}/>
+                </section>
 
-            {/* 勤怠登録フォーム */}
-            <section>
-                <h2 className="text-xl font-semibold mb-2">勤怠登録</h2>
-                <AttendanceForm employeeId={Number(id)} onAttendanceAdded={handleAttendanceAdded}/>
-            </section>
-        </div>
+                {/* 勤怠登録 */}
+                <section>
+                    <div className="flex items-center gap-2 mb-2">
+                        <CalendarCheck2 className="w-5 h-5 text-blue-600"/>
+                        <h2 className="text-xl font-semibold text-gray-800">勤怠登録</h2>
+                    </div>
+                    <AttendanceForm employeeId={Number(id)} onAttendanceAdded={handleAttendanceAdded}/>
+                </section>
+            </CardContent>
+        </Card>
     );
 };
 
