@@ -1,57 +1,68 @@
-import React, {useEffect, useState} from 'react';
-import {Link} from 'react-router-dom'
-import {Employee} from '../types/Employee.ts';
-import {fetchEmployees} from '../services/api';
+import React, {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
+import {fetchEmployees} from "../services/api";
+import {Employee} from "../types/Employee";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Users} from "lucide-react";
 
 const EmployeeList: React.FC = () => {
-    const [users, setUsers] = useState<Employee[]>([]);
+    const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string>("");
 
     useEffect(() => {
-        const loadUsers = async () => {
+        const loadEmployees = async (): Promise<void> => {
             try {
-                const usersData = await fetchEmployees();
-                setUsers(usersData);
-            } catch (error) {
-                console.error('Error fetching users:', error);
+                const data = await fetchEmployees<Employee[]>();
+                setEmployees(data);
+            } catch (err) {
+                if (err instanceof Error) {
+                    setError(err.message);
+                }
             } finally {
                 setLoading(false);
             }
         };
-
-        loadUsers();
+        void loadEmployees();
     }, []);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    if (loading) return <p className="text-center py-4">Loading...</p>;
+    if (error) return <p className="text-center text-red-600 py-4">{error}</p>;
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-xl font-semibold mb-4">User List</h1>
-            <table className="w-full border-collapse">
-                <thead>
-                <tr>
-                    <th className="border p-2 text-left">ID</th>
-                    <th className="border p-2 text-left">Name</th>
-                    <th className="border p-2 text-left">Created At</th>
-                </tr>
-                </thead>
-                <tbody>
-                {users.map(user => (
-                    <tr key={user.id}>
-                        <td className="border p-2 text-left">{user.id}</td>
-                        <td className="border p-2 text-left">
-                            <Link to={`/employees/${user.id}`} className="text-blue-600 hover:underline">
-                                {user.name}
-                            </Link>
-                        </td>
-                        <td className="border p-2 text-left">{user.created_at}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-        </div>
+        <Card className="max-w-4xl mx-auto shadow-md rounded-xl bg-white">
+            <CardHeader className="flex flex-row items-center gap-2 border-b pb-4">
+                <Users className="w-6 h-6 text-blue-600"/>
+                <CardTitle className="text-2xl font-bold text-left text-gray-800">従業員一覧</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+                <Table className="w-full">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="text-left px-4 py-2">ID</TableHead>
+                            <TableHead className="text-left px-4 py-2">名前</TableHead>
+                            <TableHead className="text-left px-4 py-2">作成日時</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {employees.map((emp) => (
+                            <TableRow key={emp.id} className="hover:bg-blue-50 transition-colors duration-200">
+                                <TableCell className="text-left px-4 py-2 font-medium">{emp.id}</TableCell>
+                                <TableCell className="text-left px-4 py-2">
+                                    <Link to={`/employees/${emp.id}`} className="text-blue-600 hover:underline">
+                                        {emp.name}
+                                    </Link>
+                                </TableCell>
+                                <TableCell className="text-left px-4 py-2">
+                                    {new Date(emp.created_at).toLocaleString()}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
     );
 };
 

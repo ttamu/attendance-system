@@ -1,126 +1,83 @@
-import React, {FormEvent, useEffect, useState} from 'react'
-import {useParams} from 'react-router-dom'
-import {Employee} from '../types/Employee.ts'
-import {createAttendance, fetchEmployeeById} from '../services/api'
+import React, {useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
+import {fetchEmployeeById} from "../services/api";
+import {Employee} from "../types/Employee";
+import PayrollDisplay from "../components/PayrollDisplay";
+import AttendanceList from "../components/AttendanceList";
+import AttendanceForm from "../components/AttendanceForm";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {BadgeInfo, CalendarCheck2, ClipboardList, Wallet} from "lucide-react";
 
-const EmployeeDetail: React.FC = () => {
+const EmployeeDetailPage: React.FC = () => {
     const {id} = useParams<{ id: string }>();
-    const [user, setUser] = useState<Employee | null>(null);
+    const [employee, setEmployee] = useState<Employee | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string>('');
-    const [checkIn, setCheckIn] = useState<string>('');
-    const [checkOut, setCheckOut] = useState<string>('');
-    const [attLoading, setAttLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>("");
+    const [refresh, setRefresh] = useState<boolean>(false);
 
     useEffect(() => {
-        const loadUser = async () => {
+        const loadEmployee = async (): Promise<void> => {
             try {
-                const data = await fetchEmployeeById(id!);
-                setUser(data);
-            } catch (err: any) {
-                setError(err.message);
+                const data: Employee = await fetchEmployeeById<Employee>(id as string);
+                setEmployee(data);
+            } catch (err) {
+                if (err instanceof Error) {
+                    setError(err.message);
+                }
             } finally {
                 setLoading(false);
             }
         };
-        void loadUser();
-    }, [id]);
+        void loadEmployee();
+    }, [id, refresh]);
 
-    const handleAttendanceSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        setAttLoading(true);
-        try {
-            const checkInISO = new Date(checkIn).toISOString();
-            const checkOutISO = new Date(checkOut).toISOString();
-
-            const newAttendance = await createAttendance(id!, {
-                check_in: checkInISO,
-                check_out: checkOutISO,
-            });
-            setUser((prev) => prev ? {...prev, attendances: [...(prev.attendances || []), newAttendance]} : prev);
-            setCheckIn('');
-            setCheckOut('');
-        } catch (err: any) {
-            alert(err.message);
-        } finally {
-            setAttLoading(false);
-        }
+    const handleAttendanceAdded = (): void => {
+        setRefresh((prev) => !prev);
     };
 
     if (loading) return <div className="text-center mt-8">Loading...</div>;
     if (error) return <div className="text-center mt-8 text-red-600">{error}</div>;
-    if (!user) return <div className="text-center mt-8">NotFound</div>;
+    if (!employee) return <div className="text-center mt-8">Not Found</div>;
 
     return (
-        <div className="max-w-2xl mx-auto p-4 text-left">
-            <h1 className="text-2xl font-bold mb-4">{user.name}の詳細</h1>
+        <Card className="max-w-4xl mx-auto shadow-md bg-white">
+            <CardHeader className="flex flex-row items-center gap-2 border-b pb-4">
+                <BadgeInfo className="w-5 h-5 text-blue-600"/>
+                <CardTitle className="text-2xl font-bold text-gray-800">
+                    {employee.name}さんの詳細
+                </CardTitle>
+            </CardHeader>
 
-            <section className="mb-8">
-                <h2 className="text-xl font-semibold mb-2">勤怠一覧</h2>
-                {user.attendances && user.attendances.length > 0 ? (
-                    <table className="w-full border-collapse">
-                        <thead>
-                        <tr>
-                            <th className="border p-2">ID</th>
-                            <th className="border p-2">出勤時刻</th>
-                            <th className="border p-2">退勤時刻</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {user.attendances.map((att) => (
-                            <tr key={att.id} className="text-center">
-                                <td className="border p-2">{att.id}</td>
-                                <td className="border p-2">{att.check_in}</td>
-                                <td className="border p-2">{att.check_out}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                ) : (
-                    <p>勤怠情報はありません。</p>
-                )}
-            </section>
+            <CardContent className="space-y-8 pt-4">
+                {/* 給与計算 */}
+                <section>
+                    <div className="flex items-center gap-2 mb-2">
+                        <Wallet className="w-5 h-5 text-blue-600"/>
+                        <h2 className="text-xl font-semibold text-gray-800">給与計算結果</h2>
+                    </div>
+                    <PayrollDisplay employeeId={Number(id)} year={2025} month={3}/>
+                </section>
 
-            <section>
-                <h2 className="text-xl font-semibold mb-2">勤怠登録</h2>
-                <form onSubmit={handleAttendanceSubmit} className="space-y-4">
-                    <div>
-                        <label htmlFor="checkIn" className="block mb-1">
-                            出勤時刻
-                        </label>
-                        <input
-                            type="datetime-local"
-                            id="checkIn"
-                            value={checkIn}
-                            onChange={(e) => setCheckIn(e.target.value)}
-                            className="w-full border p-2 rounded"
-                            required
-                        />
+                {/* 勤怠一覧 */}
+                <section>
+                    <div className="flex items-center gap-2 mb-2">
+                        <ClipboardList className="w-5 h-5 text-blue-600"/>
+                        <h2 className="text-xl font-semibold text-gray-800">勤怠一覧</h2>
                     </div>
-                    <div>
-                        <label htmlFor="checkOut" className="block mb-1">
-                            退勤時刻
-                        </label>
-                        <input
-                            type="datetime-local"
-                            id="checkOut"
-                            value={checkOut}
-                            onChange={(e) => setCheckOut(e.target.value)}
-                            className="w-full border p-2 rounded"
-                            required
-                        />
+                    <AttendanceList attendances={employee.attendances || []}/>
+                </section>
+
+                {/* 勤怠登録 */}
+                <section>
+                    <div className="flex items-center gap-2 mb-2">
+                        <CalendarCheck2 className="w-5 h-5 text-blue-600"/>
+                        <h2 className="text-xl font-semibold text-gray-800">勤怠登録</h2>
                     </div>
-                    <button
-                        type="submit"
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                        disabled={attLoading}
-                    >
-                        {attLoading ? '登録中...' : '勤怠登録'}
-                    </button>
-                </form>
-            </section>
-        </div>
+                    <AttendanceForm employeeId={Number(id)} onAttendanceAdded={handleAttendanceAdded}/>
+                </section>
+            </CardContent>
+        </Card>
     );
 };
 
-export default EmployeeDetail
+export default EmployeeDetailPage;
