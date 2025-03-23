@@ -1,31 +1,36 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL as string;
 
-export const fetchEmployees = async () => {
-    const response = await fetch(`${API_BASE_URL}/employees`);
+export async function fetchAPI<T>(endpoint: string): Promise<T> {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`);
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    return response.json();
+    return await response.json() as Promise<T>;
 }
 
-export const fetchEmployeeById = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/employees/${id}`);
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return response.json();
+export async function fetchEmployees<T>(): Promise<T> {
+    return fetchAPI<T>("/employees");
 }
 
-export const createAttendance = async (userId: string, data: { check_in: string; check_out: string }) => {
-    const response = await fetch(`${API_BASE_URL}/employees/${userId}/attendances`, {
+export async function fetchEmployeeById<T>(id: string): Promise<T> {
+    return fetchAPI<T>(`/employees/${id}`);
+}
+
+export async function createAttendance<T>(
+    employeeId: string,
+    data: { check_in: string; check_out: string }
+): Promise<T> {
+    const response = await fetch(`${API_BASE_URL}/employees/${employeeId}/attendances`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
     });
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    return response.json();
-};
+    return await response.json() as Promise<T>;
+}
+
+export async function fetchPayroll<T>(employeeId: string, year: number, month: number): Promise<T> {
+    return fetchAPI<T>(`/employees/${employeeId}/payroll?year=${year}&month=${month}`);
+}
