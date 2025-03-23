@@ -1,5 +1,5 @@
 import React from "react";
-import {Attendance} from "../types/Employee";
+import {Attendance} from "../types/Attendance";
 
 interface AttendanceListProps {
     attendances: Attendance[];
