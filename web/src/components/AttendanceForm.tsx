@@ -1,5 +1,9 @@
 import React, {FormEvent, useState} from "react";
 import {createAttendance} from "../services/api";
+import {Card, CardContent} from "@/components/ui/card";
+import {Label} from "@/components/ui/label";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
 
 interface AttendanceFormProps {
     employeeId: number;
@@ -10,9 +14,13 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({employeeId, onAttendance
     const [checkIn, setCheckIn] = useState<string>("");
     const [checkOut, setCheckOut] = useState<string>("");
     const [error, setError] = useState<string>("");
+    const [success, setSuccess] = useState<boolean>(false);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setError("");
+        setSuccess(false);
+
         try {
             const checkInISO = new Date(checkIn).toISOString();
             const checkOutISO = new Date(checkOut).toISOString();
@@ -20,8 +28,10 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({employeeId, onAttendance
                 check_in: checkInISO,
                 check_out: checkOutISO,
             });
+
             setCheckIn("");
             setCheckOut("");
+            setSuccess(true);
             onAttendanceAdded();
         } catch (err) {
             setError((err as Error).message);
@@ -29,37 +39,46 @@ const AttendanceForm: React.FC<AttendanceFormProps> = ({employeeId, onAttendance
     };
 
     return (
-        <div>
-            <h3>打刻登録</h3>
-            {error && <p style={{color: "red"}}>{error}</p>}
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label htmlFor="checkIn" className="block mb-1">出勤時刻</label>
-                    <input
-                        type="datetime-local"
-                        id="checkIn"
-                        value={checkIn}
-                        onChange={(e) => setCheckIn(e.target.value)}
-                        className="w-full border p-2 rounded"
-                        required
-                    />
-                </div>
-                <div>
-                    <label htmlFor="checkOut" className="block mb-1">退勤時刻</label>
-                    <input
-                        type="datetime-local"
-                        id="checkOut"
-                        value={checkOut}
-                        onChange={(e) => setCheckOut(e.target.value)}
-                        className="w-full border p-2 rounded"
-                        required
-                    />
-                </div>
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    登録
-                </button>
-            </form>
-        </div>
+        <Card className="bg-white shadow-sm text-gray-800">
+            <CardContent className="p-4 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800">打刻登録</h3>
+
+                {success && (
+                    <p className="text-green-600 bg-green-50 border border-green-200 p-2 rounded">
+                        登録に成功しました！
+                    </p>
+                )}
+                {error && (
+                    <p className="text-red-600 bg-red-50 border border-red-200 p-2 rounded">
+                        エラー: {error}
+                    </p>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <Label htmlFor="checkIn">出勤時刻</Label>
+                        <Input
+                            type="datetime-local"
+                            id="checkIn"
+                            value={checkIn}
+                            onChange={(e) => setCheckIn(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="checkOut">退勤時刻</Label>
+                        <Input
+                            type="datetime-local"
+                            id="checkOut"
+                            value={checkOut}
+                            onChange={(e) => setCheckOut(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <Button type="submit">登録</Button>
+                </form>
+            </CardContent>
+        </Card>
     );
 };
 
