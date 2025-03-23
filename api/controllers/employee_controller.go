@@ -90,16 +90,16 @@ func CalculateEmployeePayroll(c *gin.Context) {
 		return
 	}
 
-	//year, err := strconv.Atoi(yearParam)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{"error": "invalid year"})
-	//}
-	//month, err := strconv.Atoi(monthParam)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{"error": "invalid month"})
-	//}
+	year, err := strconv.Atoi(yearParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid year"})
+	}
+	month, err := strconv.Atoi(monthParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid month"})
+	}
 
-	resp, err := services.CalculatePayroll(db.DB, uint(employeeID))
+	resp, err := services.CalculatePayroll(db.DB, uint(employeeID), year, month)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
