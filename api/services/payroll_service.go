@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/t2469/labor-management-system.git/models"
 	"gorm.io/gorm"
+	"log"
 )
 
 type PayrollCalculationResponse struct {
@@ -15,31 +16,18 @@ type PayrollCalculationResponse struct {
 	NetSalary       float64 `json:"net_salary"`
 }
 
-func CalculatePayroll(db *gorm.DB, employeeID uint) (PayrollCalculationResponse, error) {
+func CalculatePayroll(db *gorm.DB, employeeID uint, year, month int) (PayrollCalculationResponse, error) {
 	var emp models.Employee
 	if err := db.
 		Preload("Company.Prefecture.HealthInsuranceRates").
 		Preload("Company.Prefecture.PensionInsuranceRates").
+		Preload("Allowances", "year = ? AND month = ?", year, month).
 		Preload("Allowances.AllowanceType").
 		First(&emp, employeeID).Error; err != nil {
 		return PayrollCalculationResponse{}, err
 	}
 
-	var totalAllowance float64
-	for _, ea := range emp.Allowances {
-		switch ea.AllowanceType.Type {
-		case "commission":
-			// 従業員ごとに設定された割合があればそれを使い、なければ AllowanceType の値を使用
-			rate := ea.CommissionRate
-			if rate == 0 {
-				rate = ea.AllowanceType.CommissionRate
-			}
-			commissionAmount := float64(ea.Amount) * rate
-			totalAllowance += commissionAmount
-		case "fixed":
-			totalAllowance += float64(ea.Amount)
-		}
-	}
+	totalAllowance := calculateTotalAllowance(emp.Allowances)
 
 	healthResp, err := CalculateInsurance(db, employeeID)
 	if err != nil {
@@ -71,4 +59,24 @@ func CalculatePayroll(db *gorm.DB, employeeID uint) (PayrollCalculationResponse,
 		NetSalary:       netSalary,
 	}
 	return resp, nil
+}
+
+func calculateTotalAllowance(allowances []models.EmployeeAllowance) float64 {
+	var total float64
+	for _, ea := range allowances {
+		switch ea.AllowanceType.Type {
+		case "commission":
+			// 従業員ごとに設定された割合があればそれを使用、なければデフォルトの値を使用
+			rate := ea.CommissionRate
+			if rate == 0 {
+				rate = ea.AllowanceType.CommissionRate
+			}
+			total += float64(ea.Amount) * rate
+		case "fixed":
+			total += float64(ea.Amount)
+		default:
+			log.Printf("unknown allowance type: %s", ea.AllowanceType.Type)
+		}
+	}
+	return total
 }

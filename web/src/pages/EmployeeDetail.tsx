@@ -5,6 +5,7 @@ import {Employee} from "../types/Employee";
 import PayrollDisplay from "../components/PayrollDisplay";
 import AttendanceList from "../components/AttendanceList";
 import AttendanceForm from "../components/AttendanceForm";
+import DateSelector from "../components/DateSelector";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {BadgeInfo, CalendarCheck2, ClipboardList, Wallet} from "lucide-react";
 
@@ -14,6 +15,8 @@ const EmployeeDetailPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
     const [refresh, setRefresh] = useState<boolean>(false);
+    const [year, setYear] = useState<number>(new Date().getFullYear());
+    const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
 
     useEffect(() => {
         const loadEmployee = async (): Promise<void> => {
@@ -35,6 +38,11 @@ const EmployeeDetailPage: React.FC = () => {
         setRefresh((prev) => !prev);
     };
 
+    const handleDateChange = (newYear: number, newMonth: number) => {
+        setYear(newYear);
+        setMonth(newMonth);
+    };
+
     if (loading) return <div className="text-center mt-8">Loading...</div>;
     if (error) return <div className="text-center mt-8 text-red-600">{error}</div>;
     if (!employee) return <div className="text-center mt-8">Not Found</div>;
@@ -49,13 +57,18 @@ const EmployeeDetailPage: React.FC = () => {
             </CardHeader>
 
             <CardContent className="space-y-8 pt-4">
+                {/* 年・月の選択 */}
+                <section>
+                    <DateSelector year={year} month={month} onChange={handleDateChange}/>
+                </section>
+
                 {/* 給与計算 */}
                 <section>
                     <div className="flex items-center gap-2 mb-2">
                         <Wallet className="w-5 h-5 text-blue-600"/>
                         <h2 className="text-xl font-semibold text-gray-800">給与計算結果</h2>
                     </div>
-                    <PayrollDisplay employeeId={Number(id)} year={2025} month={3}/>
+                    <PayrollDisplay employeeId={Number(id)} year={year} month={month}/>
                 </section>
 
                 {/* 勤怠一覧 */}
