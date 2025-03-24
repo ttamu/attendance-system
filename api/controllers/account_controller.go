@@ -16,6 +16,28 @@ type RegisterRequest struct {
 	IsAdmin   bool   `json:"is_admin"`
 }
 
+func CurrentAccount(c *gin.Context) {
+	accountID, exists := c.Get("account_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証情報がありません"})
+	}
+
+	var account models.Account
+	if err := db.DB.Preload("Company").First(&account, accountID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "アカウント情報の取得に失敗しました"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"account": gin.H{
+			"id":       account.ID,
+			"email":    account.Email,
+			"is_admin": account.IsAdmin,
+		},
+		"company": account.Company,
+	})
+}
+
 func Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.BindJSON(&req); err != nil {
