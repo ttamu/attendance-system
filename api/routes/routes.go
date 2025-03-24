@@ -4,12 +4,19 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/t2469/labor-management-system.git/config"
-	"github.com/t2469/labor-management-system.git/controllers"
+	"log"
 	"net/http"
 	"time"
 )
 
-func SetupRouter(cfg *config.Config) *gin.Engine {
+func Run(cfg *config.Config) {
+	router := setupRouter(cfg)
+	if err := router.Run(":8080"); err != nil {
+		log.Fatalf("failed to run server: %v", err)
+	}
+}
+
+func setupRouter(cfg *config.Config) *gin.Engine {
 	router := gin.Default()
 	setCors(router, cfg)
 
@@ -17,29 +24,11 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"message": "Hello from Gin!"})
 	})
 
-	employees := router.Group("/employees")
-	{
-		employees.GET("", controllers.GetEmployees)
-		employees.GET("/:id", controllers.GetEmployee)
-		employees.POST("", controllers.CreateEmployee)
+	addEmployeeRoutes(router)
+	addCompanyRoutes(router)
+	addAllowanceRoutes(router)
+	addAuthRoutes(router)
 
-		employees.POST("/:id/attendances", controllers.CreateAttendance)
-
-		employees.GET("/:id/insurance", controllers.CalculateEmployeeInsurance)
-		employees.GET("/:id/pension", controllers.CalculateEmployeePension)
-		employees.GET("/:id/payroll", controllers.CalculateEmployeePayroll)
-	}
-
-	companies := router.Group("/companies")
-	{
-		companies.POST("", controllers.CreateCompany)
-	}
-
-	allowances := router.Group("/allowances")
-	{
-		allowances.POST("type", controllers.CrateAllowanceType)
-		allowances.POST("", controllers.CreateEmployeeAllowance)
-	}
 	return router
 }
 
