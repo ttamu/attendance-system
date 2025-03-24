@@ -29,12 +29,10 @@ func CurrentAccount(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"account": gin.H{
-			"id":       account.ID,
-			"email":    account.Email,
-			"is_admin": account.IsAdmin,
-		},
-		"company": account.Company,
+		"id":       account.ID,
+		"email":    account.Email,
+		"is_admin": account.IsAdmin,
+		"company":  account.Company,
 	})
 }
 
