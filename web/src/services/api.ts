@@ -1,7 +1,12 @@
+import {UserProfile} from "../types/User";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL as string;
 
-export async function fetchAPI<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`);
+export async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        credentials: "include",
+    });
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -20,15 +25,11 @@ export async function createAttendance<T>(
     employeeId: string,
     data: { check_in: string; check_out: string }
 ): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}/employees/${employeeId}/attendances`, {
+    return fetchAPI<T>(`/employees/${employeeId}/attendances`, {
         method: 'POST',
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
     });
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return await response.json() as Promise<T>;
 }
 
 export async function fetchPayroll<T>(employeeId: string, year: number, month: number): Promise<T> {
@@ -36,13 +37,13 @@ export async function fetchPayroll<T>(employeeId: string, year: number, month: n
 }
 
 export async function login<T>(credential: { email: string, password: string }): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    return fetchAPI<T>("/login", {
         method: 'POST',
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(credential)
+        body: JSON.stringify(credential),
     });
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return await response.json() as Promise<T>;
+}
+
+export async function fetchProfile<T = UserProfile>(): Promise<T> {
+    return fetchAPI<T>("/current_account");
 }
