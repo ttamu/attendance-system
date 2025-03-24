@@ -34,3 +34,15 @@ export async function createAttendance<T>(
 export async function fetchPayroll<T>(employeeId: string, year: number, month: number): Promise<T> {
     return fetchAPI<T>(`/employees/${employeeId}/payroll?year=${year}&month=${month}`);
 }
+
+export async function login<T>(credential: { email: string, password: string }): Promise<T> {
+    const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(credential)
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json() as Promise<T>;
+}
