@@ -12,6 +12,7 @@ func addAuthRoutes(router *gin.Engine) {
 
 	auth := router.Group("/", middleware.AuthMiddleware())
 	{
+		auth.POST("/logout", controllers.Logout)
 		auth.GET("/current_account", controllers.CurrentAccount)
 		auth.GET("/admin/employees", controllers.GetEmployees)
 	}
