@@ -1,26 +1,29 @@
-import React, {useState} from "react"
-import {useNavigate} from "react-router-dom"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
-import {Lock, Mail} from "lucide-react"
-import {login} from "../services/api"
+import React, {useContext, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Lock, Mail} from "lucide-react";
+import {login} from "../services/api";
+import {UserContext} from "../context/UserContext";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const {refreshProfile} = useContext(UserContext);
 
     const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
         try {
             await login<{ message: string }>({email, password});
-            navigate("/")
+            await refreshProfile();
+            navigate("/");
         } catch (err) {
-            setError((err as Error).message)
+            setError((err as Error).message);
         }
-    }
+    };
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -58,7 +61,7 @@ const Login: React.FC = () => {
                 </CardContent>
             </Card>
         </div>
-    )
-}
+    );
+};
 
-export default Login
+export default Login;

@@ -1,37 +1,40 @@
-import React, {createContext, ReactNode, useEffect, useState} from "react"
-import {fetchProfile} from "../services/api"
-import {UserProfile} from "../types/User"
+import React, {createContext, ReactNode, useEffect, useState} from "react";
+import {fetchProfile} from "../services/api";
+import {UserProfile} from "../types/User";
 
 interface UserContextProps {
-    profile: UserProfile | null
-    setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>
+    profile: UserProfile | null;
+    setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
+    refreshProfile: () => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextProps>({
     profile: null,
     setProfile: () => {
     },
-})
+    refreshProfile: async () => {
+    },
+});
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({children}) => {
-    const [profile, setProfile] = useState<UserProfile | null>(null)
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+
+    const refreshProfile = async () => {
+        try {
+            const data = await fetchProfile<UserProfile>();
+            setProfile(data);
+        } catch (error) {
+            console.error("プロフィール取得失敗:", error);
+        }
+    };
 
     useEffect(() => {
-        async function loadProfile() {
-            try {
-                const data = await fetchProfile<UserProfile>()
-                setProfile(data)
-            } catch (error) {
-                console.error("プロフィール取得失敗:", error)
-            }
-        }
-
-        loadProfile()
-    }, [])
+        refreshProfile();
+    }, []);
 
     return (
-        <UserContext.Provider value={{profile, setProfile}}>
+        <UserContext.Provider value={{profile, setProfile, refreshProfile}}>
             {children}
         </UserContext.Provider>
-    )
-}
+    );
+};
