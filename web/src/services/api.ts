@@ -44,6 +44,10 @@ export async function login<T>(credential: { email: string, password: string }):
     });
 }
 
+export async function logout<T>(): Promise<T> {
+    return fetchAPI<T>("/logout", {method: "POST"});
+}
+
 export async function fetchProfile<T = UserProfile>(): Promise<T> {
     return fetchAPI<T>("/current_account");
 }
