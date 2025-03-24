@@ -23,6 +23,7 @@ func main() {
 		&models.Prefecture{},
 		&models.Company{},
 		&models.Employee{},
+		&models.Account{},
 		&models.Attendance{},
 		&models.HealthInsuranceRate{},
 		&models.PensionInsuranceRate{},
