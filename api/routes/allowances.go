@@ -11,6 +11,7 @@ func addAllowanceRoutes(router *gin.Engine) {
 	{
 		allowanceTypes.POST("", controllers.CreateAllowanceType)
 		allowanceTypes.GET("", controllers.GetAllowanceTypes)
+		allowanceTypes.GET("/:id", controllers.GetAllowanceType)
 		allowanceTypes.PUT("/:id", controllers.UpdateAllowanceType)
 	}
 

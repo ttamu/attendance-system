@@ -46,6 +46,16 @@ func GetAllowanceTypes(c *gin.Context) {
 	c.JSON(http.StatusOK, ats)
 }
 
+func GetAllowanceType(c *gin.Context) {
+	id := c.Param("id")
+	var at models.AllowanceType
+	if err := db.DB.First(&at, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Allowance type not found"})
+		return
+	}
+	c.JSON(http.StatusOK, at)
+}
+
 func UpdateAllowanceType(c *gin.Context) {
 	id := c.Param("id")
 	var at models.AllowanceType
