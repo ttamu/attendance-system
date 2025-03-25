@@ -89,3 +89,30 @@ func UpdateAllowanceType(c *gin.Context) {
 
 	c.JSON(http.StatusOK, at)
 }
+
+func DeleteAllowanceType(c *gin.Context) {
+	id := c.Param("id")
+	var at models.AllowanceType
+	if err := db.DB.First(&at, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Allowance type not found"})
+		return
+	}
+
+	companyID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	if at.CompanyID != companyID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Not allowed to delete this record"})
+		return
+	}
+
+	if err := db.DB.Delete(&at).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Allowance type deleted"})
+}

@@ -13,6 +13,7 @@ func addAllowanceRoutes(router *gin.Engine) {
 		allowanceTypes.GET("", controllers.GetAllowanceTypes)
 		allowanceTypes.GET("/:id", controllers.GetAllowanceType)
 		allowanceTypes.PUT("/:id", controllers.UpdateAllowanceType)
+		allowanceTypes.DELETE("/:id", controllers.DeleteAllowanceType)
 	}
 
 	employeeAllowances := router.Group("/employee_allowances", middleware.AuthMiddleware())
