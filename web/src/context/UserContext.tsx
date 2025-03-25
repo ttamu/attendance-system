@@ -4,12 +4,14 @@ import {UserProfile} from "../types/User";
 
 interface UserContextProps {
     profile: UserProfile | null;
+    isLoading: boolean;
     setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
     refreshProfile: () => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextProps>({
     profile: null,
+    isLoading: true,
     setProfile: () => {
     },
     refreshProfile: async () => {
@@ -18,6 +20,7 @@ export const UserContext = createContext<UserContextProps>({
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({children}) => {
     const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const refreshProfile = async () => {
         try {
@@ -25,6 +28,9 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({children}) => {
             setProfile(data);
         } catch (error) {
             console.error("プロフィール取得失敗:", error);
+            setProfile(null);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -33,7 +39,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({children}) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{profile, setProfile, refreshProfile}}>
+        <UserContext.Provider value={{profile, isLoading, setProfile, refreshProfile}}>
             {children}
         </UserContext.Provider>
     );
