@@ -11,6 +11,7 @@ func addAllowanceRoutes(router *gin.Engine) {
 	{
 		allowanceTypes.POST("", controllers.CreateAllowanceType)
 		allowanceTypes.GET("", controllers.GetAllowanceTypes)
+		allowanceTypes.PUT("/:id", controllers.UpdateAllowanceType)
 	}
 
 	employeeAllowances := router.Group("/employee_allowances", middleware.AuthMiddleware())
