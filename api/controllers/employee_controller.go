@@ -10,8 +10,14 @@ import (
 )
 
 func GetEmployees(c *gin.Context) {
+	companyID, exists := c.Get("company_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証情報がありません"})
+		return
+	}
+
 	var employee []models.Employee
-	if err := db.DB.Find(&employee).Error; err != nil {
+	if err := db.DB.Where("company_id = ?", companyID).Find(&employee).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 	c.JSON(http.StatusOK, employee)
