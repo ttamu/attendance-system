@@ -29,3 +29,19 @@ func CreateAllowanceType(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, at)
 }
+
+func GetAllowanceTypes(c *gin.Context) {
+	companyID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	var ats []models.AllowanceType
+	if err := db.DB.Where("company_id = ?", companyID).Find(&ats).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, ats)
+}

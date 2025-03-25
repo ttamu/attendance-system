@@ -10,6 +10,7 @@ func addAllowanceRoutes(router *gin.Engine) {
 	allowanceTypes := router.Group("/allowance_types", middleware.AuthMiddleware())
 	{
 		allowanceTypes.POST("", controllers.CreateAllowanceType)
+		allowanceTypes.GET("", controllers.GetAllowanceTypes)
 	}
 
 	employeeAllowances := router.Group("/employee_allowances", middleware.AuthMiddleware())
