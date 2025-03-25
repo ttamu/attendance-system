@@ -10,7 +10,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
-import {Building2, LogOut, UserIcon} from "lucide-react";
+import {Building2, LogOut, Settings, UserIcon} from "lucide-react";
 import {logout} from "../services/api";
 
 const Header: React.FC = () => {
@@ -25,6 +25,10 @@ const Header: React.FC = () => {
         } catch (error) {
             console.error("ログアウトに失敗しました", error);
         }
+    };
+
+    const handleAdminPage = () => {
+        navigate("/admin");
     };
 
     return (
@@ -54,6 +58,15 @@ const Header: React.FC = () => {
                     <div className="px-4 py-2 text-sm text-gray-700">
                         {profile?.email || ""}
                     </div>
+                    {profile?.is_admin && (
+                        <>
+                            <DropdownMenuSeparator/>
+                            <DropdownMenuItem onClick={handleAdminPage} className="cursor-pointer">
+                                <Settings className="mr-2 w-4 h-4"/>
+                                管理者ページ
+                            </DropdownMenuItem>
+                        </>
+                    )}
                     <DropdownMenuSeparator/>
                     <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                         <LogOut className="mr-2 w-4 h-4"/>
