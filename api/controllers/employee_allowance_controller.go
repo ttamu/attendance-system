@@ -38,3 +38,29 @@ func CreateEmployeeAllowance(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, ea)
 }
+
+func GetEmployeeAllowances(c *gin.Context) {
+	companyID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	var employees []models.Employee
+	if err := db.DB.Where("company_id = ?", companyID).Find(&employees).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var allAllowances []models.EmployeeAllowance
+	for _, emp := range employees {
+		var allowances []models.EmployeeAllowance
+		if err := db.DB.Where("employee_id = ?", emp.ID).Find(&allowances).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		allAllowances = append(allAllowances, allowances...)
+	}
+
+	c.JSON(http.StatusOK, allAllowances)
+}
