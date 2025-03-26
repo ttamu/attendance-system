@@ -4,6 +4,8 @@ import EmployeeDetail from './pages/EmployeeDetail.tsx'
 import Login from './pages/Login.tsx'
 import Header from './components/Header'
 import Admin from './pages/Admin'
+import AllowanceTypesPage from './pages/admin/AllowanceTypesPage'
+import AssignAllowancePage from './pages/admin/AssignAllowancePage'
 import ProtectedRoute from "@/components/ProtectedRoute.tsx";
 import {UserProvider} from "./context/UserContext"
 import {BrowserRouter, Route, Routes} from "react-router-dom";
@@ -23,7 +25,10 @@ const App: React.FC = () => {
                         </Route>
 
                         <Route element={<ProtectedRoute requireAdmin={true}/>}>
-                            <Route path="admin" element={<Admin/>}/>
+                            <Route path="admin" element={<Admin/>}>
+                                <Route path="allowance-types" element={<AllowanceTypesPage/>}/>
+                                <Route path="assign-allowance" element={<AssignAllowancePage/>}/>
+                            </Route>
                         </Route>
                     </Routes>
                 </main>
@@ -32,4 +37,4 @@ const App: React.FC = () => {
     );
 };
 
-export default App
+export default App;

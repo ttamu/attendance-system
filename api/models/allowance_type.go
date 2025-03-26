@@ -4,8 +4,9 @@ import "time"
 
 type AllowanceType struct {
 	ID             uint      `gorm:"primaryKey" json:"id"`
-	Name           string    `gorm:"unique;not null" json:"name"`
-	Type           string    `json:"type"` // "commission" or "fixed"
+	CompanyID      uint      `json:"company_id"`
+	Name           string    `gorm:"not null" json:"name"`
+	Type           string    `json:"type"`
 	Description    string    `json:"description"`
 	CommissionRate float64   `json:"commission_rate"`
 	CreatedAt      time.Time `json:"created_at"`

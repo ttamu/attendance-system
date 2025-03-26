@@ -7,9 +7,21 @@ import (
 )
 
 func addAllowanceRoutes(router *gin.Engine) {
-	allowances := router.Group("/allowances", middleware.AuthMiddleware())
+	allowanceTypes := router.Group("/allowance_types", middleware.AuthMiddleware())
 	{
-		allowances.POST("type", controllers.CrateAllowanceType)
-		allowances.POST("", controllers.CreateEmployeeAllowance)
+		allowanceTypes.POST("", controllers.CreateAllowanceType)
+		allowanceTypes.GET("", controllers.GetAllowanceTypes)
+		allowanceTypes.GET("/:id", controllers.GetAllowanceType)
+		allowanceTypes.PUT("/:id", controllers.UpdateAllowanceType)
+		allowanceTypes.DELETE("/:id", controllers.DeleteAllowanceType)
+	}
+
+	employeeAllowances := router.Group("/employee_allowances", middleware.AuthMiddleware())
+	{
+		employeeAllowances.POST("", controllers.CreateEmployeeAllowance)
+		employeeAllowances.GET("", controllers.GetEmployeeAllowances)
+		employeeAllowances.GET("/:id", controllers.GetEmployeeAllowance)
+		employeeAllowances.PUT("/:id", controllers.UpdateEmployeeAllowance)
+		employeeAllowances.DELETE("/:id", controllers.DeleteEmployeeAllowance)
 	}
 }
