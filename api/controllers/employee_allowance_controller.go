@@ -57,3 +57,30 @@ func GetEmployeeAllowances(c *gin.Context) {
 
 	c.JSON(http.StatusOK, eas)
 }
+
+func GetEmployeeAllowance(c *gin.Context) {
+	id := c.Param("id")
+	companyID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	var ea models.EmployeeAllowance
+	if err := db.DB.First(&ea, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Employee allowance not found"})
+		return
+	}
+
+	var emp models.Employee
+	if err := db.DB.First(&emp, ea.EmployeeID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Employee not found"})
+		return
+	}
+	if emp.CompanyID != companyID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Not allowed to access this allowance"})
+		return
+	}
+
+	c.JSON(http.StatusOK, ea)
+}
