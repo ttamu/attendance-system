@@ -46,21 +46,14 @@ func GetEmployeeAllowances(c *gin.Context) {
 		return
 	}
 
-	var employees []models.Employee
-	if err := db.DB.Where("company_id = ?", companyID).Find(&employees).Error; err != nil {
+	var eas []models.EmployeeAllowance
+	if err := db.DB.
+		Joins("JOIN employees ON employee_allowances.employee_id = employees.id").
+		Where("employees.company_id = ?", companyID).
+		Find(&eas).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	var allAllowances []models.EmployeeAllowance
-	for _, emp := range employees {
-		var allowances []models.EmployeeAllowance
-		if err := db.DB.Where("employee_id = ?", emp.ID).Find(&allowances).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		allAllowances = append(allAllowances, allowances...)
-	}
-
-	c.JSON(http.StatusOK, allAllowances)
+	c.JSON(http.StatusOK, eas)
 }
