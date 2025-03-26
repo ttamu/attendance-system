@@ -84,3 +84,50 @@ func GetEmployeeAllowance(c *gin.Context) {
 
 	c.JSON(http.StatusOK, ea)
 }
+
+func UpdateEmployeeAllowance(c *gin.Context) {
+	id := c.Param("id")
+	var ea models.EmployeeAllowance
+	if err := db.DB.First(&ea, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Employee allowance not found"})
+		return
+	}
+
+	companyID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	var emp models.Employee
+	if err := db.DB.First(&emp, ea.EmployeeID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Employee not found"})
+		return
+	}
+	if emp.CompanyID != companyID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Not allowed to update this allowance"})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&ea); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var newEmp models.Employee
+	if err := db.DB.First(&newEmp, ea.EmployeeID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Employee not found"})
+		return
+	}
+	if newEmp.CompanyID != companyID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Not allowed to update allowance to an employee outside your company"})
+		return
+	}
+
+	if err := db.DB.Save(&ea).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, ea)
+}

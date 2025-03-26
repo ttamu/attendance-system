@@ -21,5 +21,6 @@ func addAllowanceRoutes(router *gin.Engine) {
 		employeeAllowances.POST("", controllers.CreateEmployeeAllowance)
 		employeeAllowances.GET("", controllers.GetEmployeeAllowances)
 		employeeAllowances.GET("/:id", controllers.GetEmployeeAllowance)
+		employeeAllowances.PUT("/:id", controllers.UpdateEmployeeAllowance)
 	}
 }
