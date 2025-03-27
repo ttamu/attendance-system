@@ -75,3 +75,8 @@ variable "jwt_secret" {
   type        = string
   sensitive   = true
 }
+
+variable "allowed_origin" {
+  type        = string
+  description = "Frontend URL used by the backend service"
+}
