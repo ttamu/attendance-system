@@ -75,6 +75,14 @@ resource "aws_ecs_task_definition" "api_task" {
         { name = "JWT_SECRET", value = var.jwt_secret },
         { name = "ALLOWED_ORIGIN", value = var.allowed_origin }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ecs/${var.project_name}-api"
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "api"
+        }
+      }
     }
   ])
 
