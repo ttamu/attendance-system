@@ -142,7 +142,7 @@ resource "aws_ecs_service" "api_service" {
     container_port   = 8080
   }
 
-  depends_on = [aws_lb_listener.api_listener]
+  depends_on = [aws_lb_listener.api_https_listener]
 
   tags = {
     Project = var.project_name

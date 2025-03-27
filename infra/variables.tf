@@ -10,6 +10,24 @@ variable "aws_region" {
   default     = "ap-northeast-1"
 }
 
+variable "root_domain" {
+  description = "The root domain in Route53"
+  type        = string
+  default     = "t2469.com"
+}
+
+variable "frontend_subdomain" {
+  description = "Subdomain for the frontend"
+  type        = string
+  default     = "attendance"
+}
+
+variable "api_subdomain" {
+  description = "Subdomain for API ALB"
+  type        = string
+  default     = "api.attendance"
+}
+
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = string
