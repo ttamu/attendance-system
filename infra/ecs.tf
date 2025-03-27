@@ -68,7 +68,7 @@ resource "aws_ecs_task_definition" "api_task" {
       environment = [
         { name = "MYSQL_USER", value = var.db_username },
         { name = "MYSQL_PASSWORD", value = var.db_password },
-        # { name = "MYSQL_HOST", value = aws_db_instance.db.address },
+        { name = "MYSQL_HOST", value = aws_db_instance.db.address },
         { name = "MYSQL_PORT", value = "3306" },
         { name = "MYSQL_DATABASE", value = var.db_name },
         { name = "GO_ENV", value = "production" },
