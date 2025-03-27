@@ -11,8 +11,12 @@ type Config struct {
 }
 
 func LoadEnv() *Config {
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
+	if os.Getenv("GO_ENV") != "production" {
+		if err := godotenv.Load(); err != nil {
+			log.Println("No .env file found")
+		}
+	} else {
+		log.Println("Production mode detected. Skipping loading .env file.")
 	}
 
 	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
