@@ -43,6 +43,8 @@ resource "aws_s3_bucket_policy" "frontend_bucket_policy" {
 }
 
 resource "aws_cloudfront_distribution" "frontend_distribution" {
+  aliases = ["${var.frontend_subdomain}.${var.root_domain}"]
+
   origin {
     domain_name = aws_s3_bucket.frontend_bucket.bucket_regional_domain_name
     origin_id   = "S3-${aws_s3_bucket.frontend_bucket.id}"
