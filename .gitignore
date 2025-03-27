@@ -3,7 +3,7 @@
 .vscode/
 
 .env
-*.env
+*.env.*
 
 **/.terraform/*
 *.tfstate
@@ -21,3 +21,4 @@ override.tf.json
 terraform.rc
 
 api/tmp/
+infra/deploy_api.sh
