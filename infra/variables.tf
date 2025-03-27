@@ -80,3 +80,8 @@ variable "allowed_origin" {
   type        = string
   description = "Frontend URL used by the backend service"
 }
+
+variable "image_tag" {
+  description = "Docker image tag for versioning the api image"
+  type        = string
+}
