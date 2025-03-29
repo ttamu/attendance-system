@@ -25,6 +25,7 @@ func main() {
 		&models.Employee{},
 		&models.Account{},
 		&models.Attendance{},
+		&models.TimeClock{},
 		&models.HealthInsuranceRate{},
 		&models.PensionInsuranceRate{},
 		&models.AllowanceType{},
