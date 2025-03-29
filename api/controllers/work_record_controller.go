@@ -34,11 +34,34 @@ func GetWorkRecords(c *gin.Context) {
 		return
 	}
 
+	yearStr := c.Query("year")
+	monthStr := c.Query("month")
+
+	var from, to time.Time
+	useFilter := false
+
+	if yearStr != "" && monthStr != "" {
+		year, err1 := strconv.Atoi(yearStr)
+		month, err2 := strconv.Atoi(monthStr)
+
+		if err1 != nil || err2 != nil || month < 1 || month > 12 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid year or month"})
+			return
+		}
+
+		from = time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
+		to = from.AddDate(0, 1, 0)
+		useFilter = true
+	}
+
 	var records []models.WorkRecord
-	if err := db.DB.
-		Where("employee_id = ?", empID).
-		Order("date ASC").
-		Find(&records).Error; err != nil {
+
+	q := db.DB.Where("employee_id = ?", empID)
+	if useFilter {
+		q = q.Where("date >= ? AND date < ?", from, to)
+	}
+
+	if err := q.Order("date ASC").Find(&records).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
