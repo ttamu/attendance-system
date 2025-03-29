@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -89,8 +90,37 @@ func GetTimeClocks(c *gin.Context) {
 		return
 	}
 
+	y := c.Query("year")
+	m := c.Query("month")
+
+	var from, to time.Time
+	useFilter := false
+
+	if y != "" && m != "" {
+		year, err1 := strconv.Atoi(y)
+		month, err2 := strconv.Atoi(m)
+
+		if err1 != nil || err2 != nil || month < 1 || month > 12 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid year or month"})
+			return
+		}
+
+		from = time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+		to = from.AddDate(0, 1, 0)
+		useFilter = true
+	}
+
 	var timeClocks []models.TimeClock
-	if err := db.DB.Joins("JOIN employees ON employees.id = time_clocks.employee_id").Where("employees.company_id = ?", companyID).Order("time_clocks.timestamp DESC").Find(&timeClocks).Error; err != nil {
+
+	q := db.DB.
+		Joins("JOIN employees ON employees.id = time_clocks.employee_id").
+		Where("employees.company_id = ?", companyID)
+
+	if useFilter {
+		q = q.Where("time_clocks.timestamp >= ? AND time_clocks.timestamp < ?", from, to)
+	}
+
+	if err := q.Order("time_clocks.timestamp DESC").Find(&timeClocks).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
