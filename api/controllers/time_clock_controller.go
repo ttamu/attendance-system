@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"github.com/t2469/attendance-system.git/services"
 	"net/http"
 	"strconv"
 	"time"
@@ -49,6 +50,12 @@ func CreateTimeClock(c *gin.Context) {
 	}
 
 	if err := db.DB.Create(&timeClock).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	day := eventTime.In(time.Local).Truncate(24 * time.Hour)
+	if err := services.UpsertWorkRecord(input.EmployeeID, day); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
