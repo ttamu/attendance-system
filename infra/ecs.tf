@@ -27,6 +27,11 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_task_ssm" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_iam_role" "ecs_task_role" {
   name = "${var.project_name}-ecs-task-role"
 
@@ -129,6 +134,8 @@ resource "aws_ecs_service" "api_service" {
   task_definition = aws_ecs_task_definition.api_task.arn
   launch_type     = "FARGATE"
   desired_count   = 1
+
+  enable_execute_command = true
 
   network_configuration {
     subnets = [aws_subnet.private_a.id, aws_subnet.private_c.id]
