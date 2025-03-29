@@ -13,7 +13,6 @@ func UpsertWorkRecord(empID uint, date time.Time) error {
 	from := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.Local)
 	to := from.AddDate(0, 0, 1)
 
-	// 対象日の TimeClock レコードを取得
 	var clocks []models.TimeClock
 	if err := db.DB.
 		Where("employee_id = ? AND timestamp >= ? AND timestamp < ?", empID, from, to).
@@ -23,7 +22,7 @@ func UpsertWorkRecord(empID uint, date time.Time) error {
 	}
 
 	var clockIn, clockOut time.Time
-	var breakDuration time.Duration
+	var breakDur time.Duration
 	var breakStart *time.Time
 
 	for _, clock := range clocks {
@@ -38,29 +37,30 @@ func UpsertWorkRecord(empID uint, date time.Time) error {
 			breakStart = &clock.Timestamp
 		case models.BreakEnd:
 			if breakStart != nil {
-				breakDuration += clock.Timestamp.Sub(*breakStart)
+				breakDur += clock.Timestamp.Sub(*breakStart)
 				breakStart = nil
 			}
 		}
 	}
 
-	// clockIn/clockOut が揃っていれば、実働時間を計算。なければ 0
-	workDuration := time.Duration(0)
+	workDur := time.Duration(0)
 	if !clockIn.IsZero() && !clockOut.IsZero() && clockOut.After(clockIn) {
-		workDuration = clockOut.Sub(clockIn) - breakDuration
+		workDur = clockOut.Sub(clockIn) - breakDur
 	}
 
-	// 該当日の WorkRecord を検索し、なければ作成、あれば更新
+	breakMin := int64(breakDur.Minutes())
+	workMin := int64(workDur.Minutes())
+
 	var wr models.WorkRecord
 	err := db.DB.Where("employee_id = ? AND date = ?", empID, from).First(&wr).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		wr = models.WorkRecord{
-			EmployeeID:    empID,
-			Date:          from,
-			ClockIn:       clockIn,
-			ClockOut:      clockOut,
-			BreakDuration: breakDuration,
-			WorkDuration:  workDuration,
+			EmployeeID:   empID,
+			Date:         from,
+			ClockIn:      clockIn,
+			ClockOut:     clockOut,
+			BreakMinutes: breakMin,
+			WorkMinutes:  workMin,
 		}
 		return db.DB.Create(&wr).Error
 	} else if err != nil {
@@ -69,8 +69,8 @@ func UpsertWorkRecord(empID uint, date time.Time) error {
 
 	wr.ClockIn = clockIn
 	wr.ClockOut = clockOut
-	wr.BreakDuration = breakDuration
-	wr.WorkDuration = workDuration
+	wr.BreakMinutes = breakMin
+	wr.WorkMinutes = workMin
 
 	return db.DB.Save(&wr).Error
 }
