@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"errors"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/t2469/attendance-system.git/db"
 	"github.com/t2469/attendance-system.git/helpers"
 	"github.com/t2469/attendance-system.git/models"
 	"gorm.io/gorm"
-	"net/http"
-	"time"
 )
 
 type CreateTimeClockInput struct {
@@ -30,18 +31,11 @@ func CreateTimeClock(c *gin.Context) {
 		return
 	}
 
-	var employee models.Employee
-	if err := db.DB.First(&employee, input.EmployeeID).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "employee not found"})
+	if err := helpers.CheckEmployeeAccess(input.EmployeeID, companyID); err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
-	if employee.CompanyID != companyID {
-		c.JSON(http.StatusForbidden, gin.H{"error": "you are not allowed to record time for this employee"})
-		return
-	}
-
-	// Timestampが未指定の場合、現在時刻を設定
 	eventTime := time.Now()
 	if input.Timestamp != nil {
 		eventTime = *input.Timestamp
@@ -80,14 +74,8 @@ func GetTimeClock(c *gin.Context) {
 		return
 	}
 
-	var emp models.Employee
-	if err := db.DB.First(&emp, timeClock.EmployeeID).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve employee"})
-		return
-	}
-
-	if emp.CompanyID != companyID {
-		c.JSON(http.StatusForbidden, gin.H{"error": "access to this record is forbidden"})
+	if err := helpers.CheckEmployeeAccess(timeClock.EmployeeID, companyID); err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
