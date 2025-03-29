@@ -24,6 +24,23 @@ func CreateTimeClock(c *gin.Context) {
 		return
 	}
 
+	companyID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	var employee models.Employee
+	if err := db.DB.First(&employee, input.EmployeeID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "employee not found"})
+		return
+	}
+
+	if employee.CompanyID != companyID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "you are not allowed to record time for this employee"})
+		return
+	}
+
 	// Timestampが未指定の場合、現在時刻を設定
 	eventTime := time.Now()
 	if input.Timestamp != nil {
