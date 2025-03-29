@@ -10,11 +10,21 @@ EXPOSE 8080
 CMD ["air"]
 
 FROM base AS builder
-RUN go build -o main .
+
+WORKDIR /go/src/app/cmd/server
+RUN go build -o /go/bin/server
+
+WORKDIR /go/src/app/cmd/seed
+RUN go build -o /go/bin/seed
 
 FROM debian:bookworm-slim AS production
 WORKDIR /root/
+
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /go/src/app/main .
+
+COPY --from=builder /go/bin/server .
+COPY --from=builder /go/bin/seed .
+
 EXPOSE 8080
-CMD ["./main"]
+
+CMD ["./server"]

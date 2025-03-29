@@ -21,4 +21,6 @@ override.tf.json
 terraform.rc
 
 api/tmp/
+infra/deploy.sh
 infra/deploy_api.sh
+infra/deploy_web.sh
