@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/t2469/attendance-system.git/db"
 	"github.com/t2469/attendance-system.git/models"
+	"gorm.io/gorm"
 	"net/http"
 	"time"
 )
@@ -39,4 +41,20 @@ func CreateTimeClock(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, timeClock)
+}
+
+func GetTimeClock(c *gin.Context) {
+	id := c.Param("id")
+
+	var timeClock models.TimeClock
+	if err := db.DB.First(&timeClock, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "time clock record not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, timeClock)
 }
