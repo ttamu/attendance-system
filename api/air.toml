@@ -1,4 +1,0 @@
-root = "."
-tmp_dir = "tmp"
-build = "go build -o ./tmp/main ./cmd/server"
-cmd = "./tmp/main"
