@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/t2469/labor-management-system.git/db"
-	"github.com/t2469/labor-management-system.git/models"
+	"github.com/t2469/attendance-system.git/db"
+	"github.com/t2469/attendance-system.git/models"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"time"

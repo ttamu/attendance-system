@@ -1,14 +1,14 @@
 package controllers
 
 import (
-	"github.com/t2469/labor-management-system.git/db"
+	"github.com/t2469/attendance-system.git/db"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/t2469/labor-management-system.git/models"
+	"github.com/t2469/attendance-system.git/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

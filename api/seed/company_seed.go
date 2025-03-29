@@ -3,7 +3,7 @@ package seed
 import (
 	"log"
 
-	"github.com/t2469/labor-management-system.git/models"
+	"github.com/t2469/attendance-system.git/models"
 	"gorm.io/gorm"
 )
 

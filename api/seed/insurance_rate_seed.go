@@ -2,7 +2,7 @@ package seed
 
 import (
 	"fmt"
-	"github.com/t2469/labor-management-system.git/models"
+	"github.com/t2469/attendance-system.git/models"
 	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 	"log"
