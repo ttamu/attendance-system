@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/t2469/attendance-system.git/db"
+	"github.com/t2469/attendance-system.git/helpers"
 	"github.com/t2469/attendance-system.git/models"
 	"gorm.io/gorm"
 	"net/http"
@@ -53,6 +54,23 @@ func GetTimeClock(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	companyID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	var emp models.Employee
+	if err := db.DB.First(&emp, timeClock.EmployeeID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to retrieve employee"})
+		return
+	}
+
+	if emp.CompanyID != companyID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "access to this record is forbidden"})
 		return
 	}
 
