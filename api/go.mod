@@ -1,4 +1,4 @@
-module github.com/t2469/labor-management-system.git
+module github.com/t2469/attendance-system.git
 
 go 1.23.6
 

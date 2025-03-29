@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/t2469/labor-management-system.git/config"
-	"github.com/t2469/labor-management-system.git/db"
-	"github.com/t2469/labor-management-system.git/seed"
+	"github.com/t2469/attendance-system.git/config"
+	"github.com/t2469/attendance-system.git/db"
+	"github.com/t2469/attendance-system.git/seed"
 	"log"
 	"time"
 )

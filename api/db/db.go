@@ -19,9 +19,17 @@ func InitDB() {
 	password := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
 
+	env := os.Getenv("GO_ENV")
 	sslmode := "disable"
-	if os.Getenv("GO_ENV") == "production" {
+	if env == "production" {
 		sslmode = "require"
+	}
+
+	var logLv logger.LogLevel
+	if env == "production" {
+		logLv = logger.Warn
+	} else {
+		logLv = logger.Info
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Asia/Tokyo",
@@ -31,10 +39,10 @@ func InitDB() {
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
 			SlowThreshold:             time.Second,
-			LogLevel:                  logger.Info,
+			LogLevel:                  logLv,
 			IgnoreRecordNotFoundError: true,
 			ParameterizedQueries:      true,
-			Colorful:                  true,
+			Colorful:                  env != "production",
 		},
 	)
 

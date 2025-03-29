@@ -3,7 +3,7 @@ package routes
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/t2469/labor-management-system.git/config"
+	"github.com/t2469/attendance-system.git/config"
 	"log"
 	"net/http"
 	"time"
@@ -28,6 +28,8 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	addCompanyRoutes(router)
 	addAllowanceRoutes(router)
 	addAuthRoutes(router)
+	addTimeClockRoutes(router)
+	addWorkRecordRoutes(router)
 
 	return router
 }

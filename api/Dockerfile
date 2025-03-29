@@ -7,7 +7,7 @@ COPY . .
 FROM base AS development
 RUN go install github.com/air-verse/air@latest
 EXPOSE 8080
-CMD ["air"]
+CMD ["air", "-c", ".air.toml"]
 
 FROM base AS builder
 

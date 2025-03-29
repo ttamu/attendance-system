@@ -58,14 +58,20 @@ export default function AllowanceTypesPage() {
                         </div>
                         <div>
                             <Label className="mb-1 text-gray-800">タイプ</Label>
-                            <Input
+                            <select
                                 required
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
                                 value={edit ? edit.type : form.type}
-                                onChange={e => edit
-                                    ? setEdit({...edit, type: e.target.value})
-                                    : setForm({...form, type: e.target.value})
+                                onChange={(e) =>
+                                    edit
+                                        ? setEdit({...edit, type: e.target.value})
+                                        : setForm({...form, type: e.target.value})
                                 }
-                            />
+                            >
+                                <option value="">選択してください</option>
+                                <option value="commission">歩合制</option>
+                                <option value="fixed">固定額</option>
+                            </select>
                         </div>
                         <div>
                             <Label className="mb-1 text-gray-800">説明</Label>

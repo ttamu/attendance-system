@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/t2469/labor-management-system.git/config"
-	"github.com/t2469/labor-management-system.git/db"
-	"github.com/t2469/labor-management-system.git/models"
-	"github.com/t2469/labor-management-system.git/routes"
+	"github.com/t2469/attendance-system.git/config"
+	"github.com/t2469/attendance-system.git/db"
+	"github.com/t2469/attendance-system.git/models"
+	"github.com/t2469/attendance-system.git/routes"
 	"log"
 	"time"
 )
@@ -25,6 +25,8 @@ func main() {
 		&models.Employee{},
 		&models.Account{},
 		&models.Attendance{},
+		&models.TimeClock{},
+		&models.WorkRecord{},
 		&models.HealthInsuranceRate{},
 		&models.PensionInsuranceRate{},
 		&models.AllowanceType{},

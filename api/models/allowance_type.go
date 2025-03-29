@@ -6,7 +6,7 @@ type AllowanceType struct {
 	ID             uint      `gorm:"primaryKey" json:"id"`
 	CompanyID      uint      `json:"company_id"`
 	Name           string    `gorm:"not null" json:"name"`
-	Type           string    `json:"type"`
+	Type           string    `gorm:"not null;check:type IN ('commission','fixed')" json:"type"`
 	Description    string    `json:"description"`
 	CommissionRate float64   `json:"commission_rate"`
 	CreatedAt      time.Time `json:"created_at"`
