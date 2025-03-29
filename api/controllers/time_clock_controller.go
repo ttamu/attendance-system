@@ -81,3 +81,19 @@ func GetTimeClock(c *gin.Context) {
 
 	c.JSON(http.StatusOK, timeClock)
 }
+
+func GetTimeClocks(c *gin.Context) {
+	companyID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	var timeClocks []models.TimeClock
+	if err := db.DB.Joins("JOIN employees ON employees.id = time_clocks.employee_id").Where("employees.company_id = ?", companyID).Order("time_clocks.timestamp DESC").Find(&timeClocks).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, timeClocks)
+}

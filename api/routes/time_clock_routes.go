@@ -10,6 +10,7 @@ func addTimeClockRoutes(router *gin.Engine) {
 	timeClocks := router.Group("/time_clocks", middleware.AuthMiddleware())
 	{
 		timeClocks.POST("", controllers.CreateTimeClock)
+		timeClocks.GET("", controllers.GetTimeClocks)
 		timeClocks.GET("/:id", controllers.GetTimeClock)
 	}
 }
