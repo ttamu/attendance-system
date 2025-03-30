@@ -1,9 +1,9 @@
-import {Attendance} from "@/types/Attendance.ts";
+import {TimeClock} from "@/types/TimeClock.ts";
 
 export interface Employee {
     id: number;
     name: string;
     created_at: string;
     updated_at: string;
-    attendances?: Attendance[];
+    time_clocks?: TimeClock[];
 }

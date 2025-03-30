@@ -3,7 +3,7 @@ import {useParams} from "react-router-dom";
 import {fetchEmployeeById} from "../services/api";
 import {Employee} from "../types/Employee";
 import PayrollDisplay from "../components/PayrollDisplay";
-import AttendanceList from "../components/AttendanceList";
+import TimeClockList from "../components/TimeClockList";
 import TimeClockForm from "../components/TimeClockForm";
 import DateSelector from "../components/DateSelector";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
@@ -71,13 +71,13 @@ const EmployeeDetailPage: React.FC = () => {
                     <PayrollDisplay employeeId={Number(id)} year={year} month={month}/>
                 </section>
 
-                {/* 勤怠一覧 */}
+                {/* 打刻一覧 */}
                 <section>
                     <div className="flex items-center gap-2 mb-2">
                         <ClipboardList className="w-5 h-5 text-blue-600"/>
-                        <h2 className="text-xl font-semibold text-gray-800">勤怠一覧</h2>
+                        <h2 className="text-xl font-semibold text-gray-800">打刻一覧</h2>
                     </div>
-                    <AttendanceList attendances={employee.attendances || []}/>
+                    <TimeClockList timeClocks={employee.time_clocks || []}/>
                 </section>
 
                 {/* 打刻登録 */}
