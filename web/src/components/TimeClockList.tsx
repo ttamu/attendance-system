@@ -33,8 +33,8 @@ const TimeClockList: React.FC<TimeClockListProps> = ({timeClocks}) => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {timeClocks.map((clock) => (
-                            <TableRow key={clock.id} className="hover:bg-gray-50">
+                        {timeClocks.map((clock, index) => (
+                            <TableRow key={index} className="hover:bg-gray-50">
                                 <TableCell className="px-4 py-2">
                                     {clockTypeLabels[clock.type] ?? clock.type}
                                 </TableCell>
