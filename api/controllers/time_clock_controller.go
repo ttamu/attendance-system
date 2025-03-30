@@ -20,6 +20,15 @@ type CreateTimeClockInput struct {
 	Timestamp  *time.Time           `json:"timestamp"`
 }
 
+// formatTimeClock TimeClock のレスポンスとして不要なフィールドを除外して、読みやすい形式 (例: "2025/3/30 13:00:00") に整形して返す。
+func formatTimeClock(tc models.TimeClock) gin.H {
+	return gin.H{
+		"employee_id": tc.EmployeeID,
+		"type":        tc.Type,
+		"timestamp":   tc.Timestamp.In(time.Local).Format("2006/1/2 15:04:05"),
+	}
+}
+
 func CreateTimeClock(c *gin.Context) {
 	var input CreateTimeClockInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -60,7 +69,7 @@ func CreateTimeClock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, timeClock)
+	c.JSON(http.StatusCreated, formatTimeClock(timeClock))
 }
 
 func GetTimeClock(c *gin.Context) {
@@ -87,7 +96,7 @@ func GetTimeClock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, timeClock)
+	c.JSON(http.StatusOK, formatTimeClock(timeClock))
 }
 
 func GetTimeClocks(c *gin.Context) {
@@ -127,10 +136,14 @@ func GetTimeClocks(c *gin.Context) {
 		q = q.Where("time_clocks.timestamp >= ? AND time_clocks.timestamp < ?", from, to)
 	}
 
-	if err := q.Order("time_clocks.timestamp DESC").Find(&timeClocks).Error; err != nil {
+	if err := q.Order("time_clocks.timestamp ASC").Find(&timeClocks).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, timeClocks)
+	var resp []gin.H
+	for _, tc := range timeClocks {
+		resp = append(resp, formatTimeClock(tc))
+	}
+	c.JSON(http.StatusOK, resp)
 }

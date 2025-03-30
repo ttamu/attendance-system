@@ -11,6 +11,6 @@ type Employee struct {
 	DateOfBirth   time.Time           `json:"date_of_birth"`
 	CreatedAt     time.Time           `json:"created_at"`
 	UpdatedAt     time.Time           `json:"updated_at"`
-	Attendances   []Attendance        `json:"attendances,omitempty" gorm:"foreignKey:EmployeeID"`
+	TimeClocks    []TimeClock         `json:"time_clocks,omitempty" gorm:"foreignKey:EmployeeID"`
 	Allowances    []EmployeeAllowance `json:"allowances,omitempty" gorm:"foreignKey:EmployeeID"`
 }

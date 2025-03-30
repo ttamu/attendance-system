@@ -7,7 +7,17 @@ import (
 	"github.com/t2469/attendance-system.git/services"
 	"net/http"
 	"strconv"
+	"time"
 )
+
+func formatEmployee(emp models.Employee) gin.H {
+	return gin.H{
+		"id":             emp.ID,
+		"name":           emp.Name,
+		"monthly_salary": emp.MonthlySalary,
+		"date_of_birth":  emp.DateOfBirth.In(time.Local).Format("2006/1/2"),
+	}
+}
 
 func GetEmployees(c *gin.Context) {
 	companyID, exists := c.Get("company_id")
@@ -16,21 +26,30 @@ func GetEmployees(c *gin.Context) {
 		return
 	}
 
-	var employee []models.Employee
-	if err := db.DB.Where("company_id = ?", companyID).Find(&employee).Error; err != nil {
+	var employees []models.Employee
+	if err := db.DB.Where("company_id = ?", companyID).Find(&employees).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
-	c.JSON(http.StatusOK, employee)
+
+	formatted := make([]gin.H, 0, len(employees))
+	for _, emp := range employees {
+		formatted = append(formatted, formatEmployee(emp))
+	}
+
+	c.JSON(http.StatusOK, formatted)
 }
 
 func GetEmployee(c *gin.Context) {
 	id := c.Param("id")
 	var employee models.Employee
-	if err := db.DB.Preload("Attendances").First(&employee, id).Error; err != nil {
+
+	if err := db.DB.First(&employee, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, employee)
+
+	c.JSON(http.StatusOK, formatEmployee(employee))
 }
 
 func CreateEmployee(c *gin.Context) {
@@ -43,9 +62,10 @@ func CreateEmployee(c *gin.Context) {
 
 	if err := db.DB.Create(&employee).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	c.JSON(http.StatusOK, employee)
+	c.JSON(http.StatusOK, formatEmployee(employee))
 }
 
 func CalculateEmployeeInsurance(c *gin.Context) {
