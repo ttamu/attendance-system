@@ -22,14 +22,18 @@ export async function fetchEmployeeById<T>(id: string): Promise<T> {
     return fetchAPI<T>(`/employees/${id}`);
 }
 
-export async function createAttendance<T>(
+export async function createTimeClock<T>(
     employeeId: string,
-    data: { check_in: string; check_out: string }
+    data: { type: string; timestamp: string }
 ): Promise<T> {
-    return fetchAPI<T>(`/employees/${employeeId}/attendances`, {
+    return fetchAPI<T>("/time_clocks", {
         method: 'POST',
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+            employee_id: Number(employeeId),
+            type: data.type,
+            timestamp: data.timestamp,
+        }),
     });
 }
 
