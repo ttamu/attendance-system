@@ -10,5 +10,6 @@ func addClockRequestRoutes(router *gin.Engine) {
 	requests := router.Group("/clock_requests", middleware.AuthMiddleware())
 	{
 		requests.GET("", controllers.GetClockRequests)
+		requests.POST("/:id/approve", controllers.ApproveClockRequest)
 	}
 }
