@@ -10,9 +10,6 @@ const Admin: React.FC = () => {
                 <CardTitle className="text-3xl font-bold text-gray-900">管理者ページ</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="mb-6 text-gray-700">
-                    ここでは手当タイプの管理、従業員への手当割り当て、そして打刻修正申請の承認・却下を行います。
-                </p>
                 <div className="flex flex-col sm:flex-row gap-6 mb-8">
                     <Link
                         to="allowance-types"
