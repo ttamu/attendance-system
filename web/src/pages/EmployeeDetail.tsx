@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
-import {fetchEmployeeById} from "../services/api";
+import {fetchEmployeeById, fetchTimeClocks} from "../services/api";
 import {Employee} from "../types/Employee";
+import {TimeClock} from "../types/TimeClock";
 import PayrollDisplay from "../components/PayrollDisplay";
 import TimeClockList from "../components/TimeClockList";
 import TimeClockForm from "../components/TimeClockForm";
@@ -12,6 +13,7 @@ import {BadgeInfo, CalendarCheck2, ClipboardList, Wallet} from "lucide-react";
 const EmployeeDetailPage: React.FC = () => {
     const {id} = useParams<{ id: string }>();
     const [employee, setEmployee] = useState<Employee | null>(null);
+    const [timeClocks, setTimeClocks] = useState<TimeClock[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
     const [refresh, setRefresh] = useState<boolean>(false);
@@ -21,18 +23,28 @@ const EmployeeDetailPage: React.FC = () => {
     useEffect(() => {
         const loadEmployee = async (): Promise<void> => {
             try {
-                const data: Employee = await fetchEmployeeById<Employee>(id as string);
+                const data = await fetchEmployeeById<Employee>(id as string);
                 setEmployee(data);
             } catch (err) {
-                if (err instanceof Error) {
-                    setError(err.message);
-                }
+                if (err instanceof Error) setError(err.message);
             } finally {
                 setLoading(false);
             }
         };
         void loadEmployee();
-    }, [id, refresh]);
+    }, [id]);
+
+    useEffect(() => {
+        const loadTimeClocks = async (): Promise<void> => {
+            try {
+                const data = await fetchTimeClocks(Number(id), year, month);
+                setTimeClocks(data);
+            } catch (err) {
+                if (err instanceof Error) setError(err.message);
+            }
+        };
+        void loadTimeClocks();
+    }, [id, year, month, refresh]);
 
     const handleTimeClockAdded = (): void => {
         setRefresh((prev) => !prev);
@@ -77,7 +89,7 @@ const EmployeeDetailPage: React.FC = () => {
                         <ClipboardList className="w-5 h-5 text-blue-600"/>
                         <h2 className="text-xl font-semibold text-gray-800">打刻一覧</h2>
                     </div>
-                    <TimeClockList timeClocks={employee.time_clocks || []}/>
+                    <TimeClockList timeClocks={timeClocks}/>
                 </section>
 
                 {/* 打刻登録 */}
