@@ -12,5 +12,7 @@ func addTimeClockRoutes(router *gin.Engine) {
 		timeClocks.POST("", controllers.CreateTimeClock)
 		timeClocks.GET("", controllers.GetTimeClocks)
 		timeClocks.GET("/:id", controllers.GetTimeClock)
+
+		timeClocks.POST("/:id/requests", controllers.CreateClockRequest)
 	}
 }
