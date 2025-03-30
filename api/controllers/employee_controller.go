@@ -5,6 +5,7 @@ import (
 	"github.com/t2469/attendance-system.git/db"
 	"github.com/t2469/attendance-system.git/models"
 	"github.com/t2469/attendance-system.git/services"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"time"
@@ -47,7 +48,7 @@ func GetEmployees(c *gin.Context) {
 func GetEmployee(c *gin.Context) {
 	id := c.Param("id")
 	var employee models.Employee
-	if err := db.DB.Preload("TimeClocks").First(&employee, id).Error; err != nil {
+	if err := db.DB.Preload("TimeClocks", func(db *gorm.DB) *gorm.DB { return db.Order("timestamp ASC") }).First(&employee, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
