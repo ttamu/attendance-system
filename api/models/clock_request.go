@@ -44,8 +44,17 @@ func (r *ClockRequest) BeforeUpdate(tx *gorm.DB) error {
 }
 
 func (r *ClockRequest) validate() error {
+	// status
 	if !validStatuses[r.Status] {
 		return errors.New("invalid request status: " + string(r.Status))
 	}
+
+	// type
+	switch r.Type {
+	case ClockIn, ClockOut, BreakBegin, BreakEnd:
+	default:
+		return errors.New("invalid time clock type: " + string(r.Type))
+	}
+
 	return nil
 }
