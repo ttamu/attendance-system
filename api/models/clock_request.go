@@ -30,6 +30,7 @@ type ClockRequest struct {
 	Status     RequestStatus `gorm:"type:varchar(20);default:'pending'"`
 	Reason     string        `gorm:"type:text"`
 	ReviewedBy *uint
+	Reviewer   *Account `gorm:"foreignKey:ReviewedBy"`
 	ReviewedAt *time.Time
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
