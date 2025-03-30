@@ -1,6 +1,5 @@
 import {UserProfile} from "../types/User";
 import {AllowanceType, EmployeeAllowance} from "../types/Allowance";
-import {TimeClock} from "@/types/TimeClock"
 
 const API_BASE_URL = import.meta.env.VITE_API_URL as string;
 
@@ -23,14 +22,8 @@ export async function fetchEmployeeById<T>(id: string): Promise<T> {
     return fetchAPI<T>(`/employees/${id}`);
 }
 
-export async function fetchTimeClocks(
-    employeeId: number,
-    year: number,
-    month: number
-): Promise<TimeClock[]> {
-    return fetchAPI<TimeClock[]>(
-        `/time_clocks?employee_id=${employeeId}&year=${year}&month=${month}`
-    )
+export async function fetchTimeClocks<T>(employeeId: number, year: number, month: number): Promise<T> {
+    return fetchAPI<T>(`/time_clocks?employee_id=${employeeId}&year=${year}&month=${month}`);
 }
 
 export async function createTimeClock<T>(

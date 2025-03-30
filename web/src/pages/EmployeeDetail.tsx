@@ -37,8 +37,8 @@ const EmployeeDetailPage: React.FC = () => {
     useEffect(() => {
         const loadTimeClocks = async (): Promise<void> => {
             try {
-                const data = await fetchTimeClocks(Number(id), year, month);
-                setTimeClocks(data);
+                const data = await fetchTimeClocks<TimeClock[]>(Number(id), year, month);
+                setTimeClocks(data ?? []);
             } catch (err) {
                 if (err instanceof Error) setError(err.message);
             }
