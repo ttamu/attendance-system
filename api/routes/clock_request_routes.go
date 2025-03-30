@@ -11,5 +11,6 @@ func addClockRequestRoutes(router *gin.Engine) {
 	{
 		requests.GET("", controllers.GetClockRequests)
 		requests.POST("/:id/approve", controllers.ApproveClockRequest)
+		requests.POST("/:id/reject", controllers.RejectClockRequest)
 	}
 }
