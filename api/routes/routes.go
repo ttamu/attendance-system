@@ -30,6 +30,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	addAuthRoutes(router)
 	addTimeClockRoutes(router)
 	addWorkRecordRoutes(router)
+	addClockRequestRoutes(router)
 
 	return router
 }

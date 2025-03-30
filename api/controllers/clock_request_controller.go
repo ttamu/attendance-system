@@ -83,3 +83,38 @@ func CreateClockRequest(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, req)
 }
+
+func GetClockRequests(c *gin.Context) {
+	// JWTから会社IDを取得
+	compID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	employeeID := c.Query("employee_id")
+	status := c.Query("status")
+
+	var requests []models.ClockRequest
+
+	query := db.DB.
+		Joins("JOIN employees ON employees.id = clock_requests.employee_id").
+		Where("employees.company_id = ?", compID)
+
+	// 従業員IDで絞り込み
+	if employeeID != "" {
+		query = query.Where("clock_requests.employee_id = ?", employeeID)
+	}
+
+	// ステータスで絞り込み
+	if status != "" {
+		query = query.Where("clock_requests.status = ?", status)
+	}
+
+	if err := query.Order("created_at DESC").Find(&requests).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, requests)
+}
