@@ -11,11 +11,16 @@ import (
 	"time"
 )
 
-type ClockRequestInput struct {
+type ClockReqInput struct {
 	EmployeeID uint   `json:"employee_id" binding:"required"`
 	Type       string `json:"type" binding:"required"`
 	Time       string `json:"time" binding:"required"`
 	Reason     string `json:"reason"`
+}
+
+type ClockReqOutput struct {
+	models.ClockRequest
+	EmployeeName string `json:"employee_name"`
 }
 
 func CreateClockRequest(c *gin.Context) {
@@ -26,7 +31,7 @@ func CreateClockRequest(c *gin.Context) {
 		return
 	}
 
-	var input ClockRequestInput
+	var input ClockReqInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -97,9 +102,11 @@ func GetClockRequests(c *gin.Context) {
 	employeeID := c.Query("employee_id")
 	status := c.Query("status")
 
-	var requests []models.ClockRequest
+	var req []ClockReqOutput
 
 	query := db.DB.
+		Table("clock_requests").
+		Select("clock_requests.*, employees.name as employee_name").
 		Joins("JOIN employees ON employees.id = clock_requests.employee_id").
 		Where("employees.company_id = ?", compID)
 
@@ -113,12 +120,12 @@ func GetClockRequests(c *gin.Context) {
 		query = query.Where("clock_requests.status = ?", status)
 	}
 
-	if err := query.Order("created_at DESC").Find(&requests).Error; err != nil {
+	if err := query.Order("clock_requests.created_at DESC").Scan(&req).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, requests)
+	c.JSON(http.StatusOK, req)
 }
 
 // ApproveClockRequest は打刻修正申請を承認し、TimeClockとWorkRecordを更新する（管理者専用）

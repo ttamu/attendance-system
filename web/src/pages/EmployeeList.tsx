@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import {fetchEmployees} from "../services/api";
 import {Employee} from "../types/Employee";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Users} from "lucide-react";
 
@@ -42,7 +42,6 @@ const EmployeeList: React.FC = () => {
                         <TableRow>
                             <TableHead className="text-left px-4 py-2">ID</TableHead>
                             <TableHead className="text-left px-4 py-2">名前</TableHead>
-                            <TableHead className="text-left px-4 py-2">作成日時</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -53,9 +52,6 @@ const EmployeeList: React.FC = () => {
                                     <Link to={`/employees/${emp.id}`} className="text-blue-600 hover:underline">
                                         {emp.name}
                                     </Link>
-                                </TableCell>
-                                <TableCell className="text-left px-4 py-2">
-                                    {new Date(emp.created_at).toLocaleString()}
                                 </TableCell>
                             </TableRow>
                         ))}

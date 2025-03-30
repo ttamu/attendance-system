@@ -20,9 +20,9 @@ type CreateTimeClockInput struct {
 	Timestamp  *time.Time           `json:"timestamp"`
 }
 
-// formatTimeClock TimeClock のレスポンスとして不要なフィールドを除外して、読みやすい形式 (例: "2025/3/30 13:00:00") に整形して返す。
 func formatTimeClock(tc models.TimeClock) gin.H {
 	return gin.H{
+		"id":          tc.ID,
 		"employee_id": tc.EmployeeID,
 		"type":        tc.Type,
 		"timestamp":   tc.Timestamp.In(time.Local).Format("2006/1/2 15:04:05"),

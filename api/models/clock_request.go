@@ -22,18 +22,18 @@ var validStatuses = map[RequestStatus]bool{
 }
 
 type ClockRequest struct {
-	ID         uint          `gorm:"primaryKey"`
-	EmployeeID uint          `gorm:"not null"`
-	ClockID    uint          `gorm:"not null"`
-	Type       TimeClockType `gorm:"type:varchar(20);not null"`
-	Time       time.Time     `gorm:"not null"`
-	Status     RequestStatus `gorm:"type:varchar(20);default:'pending'"`
-	Reason     string        `gorm:"type:text"`
-	ReviewedBy *uint
-	Reviewer   *Account `gorm:"foreignKey:ReviewedBy"`
-	ReviewedAt *time.Time
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID         uint          `gorm:"primaryKey" json:"id"`
+	EmployeeID uint          `gorm:"not null" json:"employee_id"`
+	ClockID    uint          `gorm:"not null" json:"clock_id"`
+	Type       TimeClockType `gorm:"type:varchar(20);not null" json:"type"`
+	Time       time.Time     `gorm:"not null" json:"time"`
+	Status     RequestStatus `gorm:"type:varchar(20);default:'pending'" json:"status"`
+	Reason     string        `gorm:"type:text" json:"reason"`
+	ReviewedBy *uint         `json:"reviewed_by,omitempty"`
+	Reviewer   *Account      `gorm:"foreignKey:ReviewedBy" json:"reviewer,omitempty"`
+	ReviewedAt *time.Time    `json:"reviewed_at,omitempty"`
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
 }
 
 func (r *ClockRequest) BeforeCreate(tx *gorm.DB) error {
