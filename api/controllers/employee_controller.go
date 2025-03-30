@@ -26,7 +26,7 @@ func GetEmployees(c *gin.Context) {
 func GetEmployee(c *gin.Context) {
 	id := c.Param("id")
 	var employee models.Employee
-	if err := db.DB.Preload("Attendances").First(&employee, id).Error; err != nil {
+	if err := db.DB.Preload("TimeClocks").First(&employee, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
