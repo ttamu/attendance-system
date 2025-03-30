@@ -5,28 +5,17 @@ import (
 	"github.com/t2469/attendance-system.git/db"
 	"github.com/t2469/attendance-system.git/models"
 	"github.com/t2469/attendance-system.git/services"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"time"
 )
 
 func formatEmployee(emp models.Employee) gin.H {
-	formattedTimeClocks := []gin.H{}
-	for _, tc := range emp.TimeClocks {
-		formattedTimeClocks = append(formattedTimeClocks, gin.H{
-			"employee_id": tc.EmployeeID,
-			"type":        tc.Type,
-			"timestamp":   tc.Timestamp.In(time.Local).Format("2006/1/2 15:04:05"),
-		})
-	}
-
 	return gin.H{
 		"id":             emp.ID,
 		"name":           emp.Name,
 		"monthly_salary": emp.MonthlySalary,
 		"date_of_birth":  emp.DateOfBirth.In(time.Local).Format("2006/1/2"),
-		"time_clocks":    formattedTimeClocks,
 	}
 }
 
@@ -42,16 +31,24 @@ func GetEmployees(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, employees)
+
+	formatted := make([]gin.H, 0, len(employees))
+	for _, emp := range employees {
+		formatted = append(formatted, formatEmployee(emp))
+	}
+
+	c.JSON(http.StatusOK, formatted)
 }
 
 func GetEmployee(c *gin.Context) {
 	id := c.Param("id")
 	var employee models.Employee
-	if err := db.DB.Preload("TimeClocks", func(db *gorm.DB) *gorm.DB { return db.Order("timestamp ASC") }).First(&employee, id).Error; err != nil {
+
+	if err := db.DB.First(&employee, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, formatEmployee(employee))
 }
 

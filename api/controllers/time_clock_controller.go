@@ -136,7 +136,7 @@ func GetTimeClocks(c *gin.Context) {
 		q = q.Where("time_clocks.timestamp >= ? AND time_clocks.timestamp < ?", from, to)
 	}
 
-	if err := q.Order("time_clocks.timestamp DESC").Find(&timeClocks).Error; err != nil {
+	if err := q.Order("time_clocks.timestamp ASC").Find(&timeClocks).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
