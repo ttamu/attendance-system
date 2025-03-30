@@ -6,6 +6,7 @@ import Header from './components/Header'
 import Admin from './pages/Admin'
 import AllowanceTypesPage from './pages/admin/AllowanceTypesPage'
 import AssignAllowancePage from './pages/admin/AssignAllowancePage'
+import ClockRequestList from './pages/admin/ClockRequestList'
 import ProtectedRoute from "@/components/ProtectedRoute.tsx";
 import {UserProvider} from "./context/UserContext"
 import {BrowserRouter, Route, Routes} from "react-router-dom";
@@ -28,6 +29,7 @@ const App: React.FC = () => {
                             <Route path="admin" element={<Admin/>}>
                                 <Route path="allowance-types" element={<AllowanceTypesPage/>}/>
                                 <Route path="assign-allowance" element={<AssignAllowancePage/>}/>
+                                <Route path="clock-requests" element={<ClockRequestList/>}/>
                             </Route>
                         </Route>
                     </Routes>

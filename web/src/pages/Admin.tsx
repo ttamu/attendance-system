@@ -1,7 +1,7 @@
 import React from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Link, Outlet} from 'react-router-dom';
-import {ClipboardList, PlusCircle} from 'lucide-react';
+import {ClipboardList, List, PlusCircle} from 'lucide-react';
 
 const Admin: React.FC = () => {
     return (
@@ -11,7 +11,7 @@ const Admin: React.FC = () => {
             </CardHeader>
             <CardContent>
                 <p className="mb-6 text-gray-700">
-                    ここでは手当タイプの管理や従業員への手当割り当てを行います。
+                    ここでは手当タイプの管理、従業員への手当割り当て、そして打刻修正申請の承認・却下を行います。
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 mb-8">
                     <Link
@@ -27,6 +27,13 @@ const Admin: React.FC = () => {
                     >
                         <ClipboardList className="w-6 h-6 text-blue-600"/>
                         <span className="text-blue-600 font-medium">従業員への手当割り当て</span>
+                    </Link>
+                    <Link
+                        to="clock-requests"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                    >
+                        <List className="w-6 h-6 text-blue-600"/>
+                        <span className="text-blue-600 font-medium">打刻修正申請一覧</span>
                     </Link>
                 </div>
                 <Outlet/>

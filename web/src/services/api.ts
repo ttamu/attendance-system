@@ -52,6 +52,10 @@ export async function createClockRequest<T>(
     });
 }
 
+export async function fetchClockRequests<T>(): Promise<T> {
+    return fetchAPI<T>("/clock_requests")
+}
+
 export async function fetchPayroll<T>(employeeId: string, year: number, month: number): Promise<T> {
     return fetchAPI<T>(`/employees/${employeeId}/payroll?year=${year}&month=${month}`);
 }
