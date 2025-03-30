@@ -8,9 +8,19 @@ export async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): 
         ...options,
         credentials: "include",
     });
+
     if (!response.ok) {
-        throw new Error(`error! Status: ${response.status}`);
+        let errorMsg = `Error! Status: ${response.status}`;
+        try {
+            const data = await response.json();
+            errorMsg = data?.error || data?.message || errorMsg;
+            console.error(`API Error at ${endpoint}: ${errorMsg}`);
+        } catch (e) {
+            console.error(`API Error at ${endpoint}: Unable to parse error response. Status: ${response.status}`);
+        }
+        throw new Error(errorMsg);
     }
+
     return await response.json() as Promise<T>;
 }
 
@@ -55,6 +65,20 @@ export async function createClockRequest<T>(
 export async function fetchClockRequests<T>(): Promise<T> {
     return fetchAPI<T>("/clock_requests")
 }
+
+export const approveClockReq = async <T>(id: number): Promise<T> => {
+    return fetchAPI<T>(`/clock_requests/${id}/approve`, {
+        headers: {"Content-Type": "application/json"},
+        method: "POST",
+    });
+};
+
+export const rejectClockReq = async <T>(id: number): Promise<T> => {
+    return fetchAPI<T>(`/clock_requests/${id}/reject`, {
+        headers: {"Content-Type": "application/json"},
+        method: "POST",
+    });
+};
 
 export async function fetchPayroll<T>(employeeId: string, year: number, month: number): Promise<T> {
     return fetchAPI<T>(`/employees/${employeeId}/payroll?year=${year}&month=${month}`);
