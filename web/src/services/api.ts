@@ -9,7 +9,7 @@ export async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): 
         credentials: "include",
     });
     if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`error! Status: ${response.status}`);
     }
     return await response.json() as Promise<T>;
 }
@@ -38,6 +38,17 @@ export async function createTimeClock<T>(
             type: data.type,
             timestamp: data.timestamp,
         }),
+    });
+}
+
+export async function createClockRequest<T>(
+    clockId: number,
+    data: { employee_id: number; type: string; time: string; reason: string }
+): Promise<T> {
+    return fetchAPI<T>(`/time_clocks/${clockId}/requests`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data),
     });
 }
 
