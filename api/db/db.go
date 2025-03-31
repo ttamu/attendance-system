@@ -29,7 +29,7 @@ func InitDB() {
 	if env == "production" {
 		logLv = logger.Warn
 	} else {
-		logLv = logger.Info
+		logLv = logger.Warn
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Asia/Tokyo",
