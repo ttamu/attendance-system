@@ -13,8 +13,10 @@ type HealthInsuranceRate struct {
 	HealthHalfNonCare   float64
 	HealthTotalWithCare float64
 	HealthHalfWithCare  float64
-	Year                int
-	Month               int
+	FromYear            int
+	FromMonth           int
+	ToYear              int
+	ToMonth             int
 	CreatedAt           time.Time `json:"created_at"`
 	UpdatedAt           time.Time `json:"updated_at"`
 }
