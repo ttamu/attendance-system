@@ -30,7 +30,7 @@ Password: password
 #### 従業員アカウント
 
 ```
-Email:    tokyo_employee@example.com
+Email:    tokyo_user@example.com
 Password: password
 ```
 
