@@ -34,7 +34,7 @@ func CalculatePayroll(db *gorm.DB, employeeID uint, year, month int) (PayrollCal
 		return PayrollCalculationResponse{}, err
 	}
 
-	pensionResp, err := CalculatePension(db, employeeID)
+	pensionResp, err := CalculatePension(db, employeeID, year, month)
 	if err != nil {
 		return PayrollCalculationResponse{}, err
 	}

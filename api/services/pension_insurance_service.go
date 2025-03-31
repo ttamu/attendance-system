@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/t2469/attendance-system.git/models"
 	"gorm.io/gorm"
-	"sort"
 )
 
 type PensionInsuranceResponse struct {
@@ -19,49 +18,48 @@ type PensionInsuranceResponse struct {
 	Age                     int     `json:"age"`
 }
 
-func CalculatePension(db *gorm.DB, employeeID uint) (PensionInsuranceResponse, error) {
+// CalculatePension は、指定された年・月をもとに年金保険料を計算する関数
+func CalculatePension(db *gorm.DB, employeeID uint, calcYear, calcMonth int) (PensionInsuranceResponse, error) {
 	var employee models.Employee
-	if err := db.Preload("Company.Prefecture.PensionInsuranceRates").First(&employee, employeeID).Error; err != nil {
+	if err := db.Preload("Company").First(&employee, employeeID).Error; err != nil {
 		return PensionInsuranceResponse{}, err
 	}
 
 	age := calculateAge(employee.DateOfBirth)
-
-	pref := employee.Company.Prefecture
-	if pref.ID == 0 {
-		return PensionInsuranceResponse{}, errors.New("prefecture not found for employee's company")
+	prefID := employee.Company.PrefectureID
+	if prefID == 0 {
+		return PensionInsuranceResponse{}, errors.New("prefecture ID not set for employee's company")
 	}
 
-	rates := pref.PensionInsuranceRates
-	if len(rates) == 0 {
-		return PensionInsuranceResponse{}, errors.New("no pension insurance rates configured for the prefecture")
+	var rate models.PensionInsuranceRate
+	err := db.Where(
+		"prefecture_id = ? AND min_monthly_amount <= ? AND max_monthly_amount >= ? "+
+			"AND ((from_year < ? OR (from_year = ? AND from_month <= ?)) "+
+			"AND (to_year > ? OR (to_year = ? AND to_month >= ?)))",
+		prefID, employee.MonthlySalary, employee.MonthlySalary,
+		calcYear, calcYear, calcMonth,
+		calcYear, calcYear, calcMonth,
+	).Order("from_year desc, from_month desc").
+		First(&rate).Error
+	if err != nil {
+		return PensionInsuranceResponse{}, errors.New("no matching rate found for employee's company for the specified calculation date")
 	}
 
-	sort.Slice(rates, func(i, j int) bool {
-		return rates[i].MinMonthlyAmount < rates[j].MinMonthlyAmount
-	})
-
-	var selectedRate *models.PensionInsuranceRate
-	for i, rate := range rates {
-		if employee.MonthlySalary >= rate.MinMonthlyAmount && employee.MonthlySalary <= rate.MaxMonthlyAmount {
-			selectedRate = &rates[i]
-			break
-		}
-	}
-	if selectedRate == nil {
-		return PensionInsuranceResponse{}, errors.New("no matching rates found for employee's company")
+	var pref models.Prefecture
+	if err := db.First(&pref, prefID).Error; err != nil {
+		return PensionInsuranceResponse{}, errors.New("prefecture not found")
 	}
 
-	total := selectedRate.PensionTotal
-	employeePension := selectedRate.PensionHalf
+	total := rate.PensionTotal
+	employeePension := rate.PensionHalf
 	employerPension := total - employeePension
 
 	resp := PensionInsuranceResponse{
 		EmployeeName:            employee.Name,
 		CompanyName:             employee.Company.Name,
 		PrefectureName:          pref.Name,
-		Grade:                   selectedRate.Grade,
-		CalculatedMonthlyAmount: selectedRate.MonthlyAmount,
+		Grade:                   rate.Grade,
+		CalculatedMonthlyAmount: rate.MonthlyAmount,
 		PensionTotal:            total,
 		EmployeePension:         employeePension,
 		EmployerPension:         employerPension,

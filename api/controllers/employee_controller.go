@@ -116,7 +116,29 @@ func CalculateEmployeePension(c *gin.Context) {
 		return
 	}
 
-	resp, err := services.CalculatePension(db.DB, uint(employeeID))
+	yearParam := c.Query("year")
+	if yearParam == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "year parameter is required"})
+		return
+	}
+	calcYear, err := strconv.Atoi(yearParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid year"})
+		return
+	}
+
+	monthParam := c.Query("month")
+	if monthParam == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "month parameter is required"})
+		return
+	}
+	calcMonth, err := strconv.Atoi(monthParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid month"})
+		return
+	}
+
+	resp, err := services.CalculatePension(db.DB, uint(employeeID), calcYear, calcMonth)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
