@@ -1,6 +1,7 @@
 package seed
 
 import (
+	"embed"
 	"fmt"
 	"github.com/t2469/attendance-system.git/models"
 	"github.com/xuri/excelize/v2"
@@ -29,8 +30,18 @@ func rmComma(s string) string {
 	return strings.ReplaceAll(s, ",", "")
 }
 
-func SeedInsuranceRates(db *gorm.DB, filePath string) error {
-	f, err := excelize.OpenFile(filePath)
+//go:embed insurance_rates.xlsx
+var insuranceFile embed.FS
+
+func SeedInsuranceRates(db *gorm.DB) error {
+	fData, err := insuranceFile.Open("insurance_rates.xlsx")
+	if err != nil {
+		return fmt.Errorf("failed to open embedded Excel file: %v", err)
+	}
+
+	defer fData.Close()
+
+	f, err := excelize.OpenReader(fData)
 	if err != nil {
 		return fmt.Errorf("failed to open Excel file: %v", err)
 	}
@@ -97,7 +108,7 @@ func SeedInsuranceRates(db *gorm.DB, filePath string) error {
 				minStr = "0"
 			}
 			if maxStr == "" {
-				maxStr = strconv.FormatInt(math.MaxInt64, 10)
+				maxStr = strconv.FormatInt(int64(math.MaxInt64), 10)
 			}
 			minAmt, err1 := strconv.Atoi(minStr)
 			maxAmt, err2 := strconv.Atoi(maxStr)
