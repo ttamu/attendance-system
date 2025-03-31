@@ -28,11 +28,7 @@ func main() {
 	if err := seed.SeedEmployees(db.DB); err != nil {
 		log.Fatalf("SeedEmployees failed: %v", err)
 	}
-
-	if err := seed.SeedAttendances(db.DB); err != nil {
-		log.Fatalf("SeedAttendances failed: %v", err)
-	}
-
+	
 	if err := seed.SeedInsuranceRates(db.DB, "seed/insurance_rates.xlsx"); err != nil {
 		log.Fatalf("seedInsuranceRates failed: %v", err)
 	}
