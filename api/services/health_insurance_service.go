@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/t2469/attendance-system.git/models"
 	"gorm.io/gorm"
-	"sort"
 )
 
 type HealthInsuranceResponse struct {
@@ -20,50 +19,47 @@ type HealthInsuranceResponse struct {
 	Age                     int     `json:"age"`
 }
 
-func CalculateInsurance(db *gorm.DB, employeeID uint) (HealthInsuranceResponse, error) {
+// CalculateInsurance 指定された年・月をもとに健康保険料を計算する関数
+func CalculateInsurance(db *gorm.DB, employeeID uint, year, month int) (HealthInsuranceResponse, error) {
 	var employee models.Employee
-	if err := db.
-		Preload("Company.Prefecture.HealthInsuranceRates").
-		First(&employee, employeeID).Error; err != nil {
+	if err := db.Preload("Company").First(&employee, employeeID).Error; err != nil {
 		return HealthInsuranceResponse{}, err
 	}
 
 	age := calculateAge(employee.DateOfBirth)
 	withCare := age >= 40 && age < 65
 
-	pref := employee.Company.Prefecture
-	if pref.ID == 0 {
-		return HealthInsuranceResponse{}, errors.New("prefecture not found for employee's company")
+	prefectureID := employee.Company.PrefectureID
+	if prefectureID == 0 {
+		return HealthInsuranceResponse{}, errors.New("prefecture ID not set for employee's company")
 	}
 
-	rates := pref.HealthInsuranceRates
-	if len(rates) == 0 {
-		return HealthInsuranceResponse{}, errors.New("no health insurance rates configured for the prefecture")
+	var rate models.HealthInsuranceRate
+	err := db.Where(
+		"prefecture_id = ? AND min_monthly_amount <= ? AND max_monthly_amount >= ? "+
+			"AND ((? > from_year) OR (? = from_year AND ? >= from_month)) "+
+			"AND ((? < to_year) OR (? = to_year AND ? <= to_month))",
+		prefectureID, employee.MonthlySalary, employee.MonthlySalary,
+		year, year, month,
+		year, year, month,
+	).Order("from_year desc, from_month desc").
+		First(&rate).Error
+	if err != nil {
+		return HealthInsuranceResponse{}, errors.New("no matching rate found for employee's company for the specified calculation date")
 	}
 
-	sort.Slice(rates, func(i, j int) bool {
-		return rates[i].MinMonthlyAmount < rates[j].MinMonthlyAmount
-	})
-
-	var selectedRate *models.HealthInsuranceRate
-	for i, rate := range rates {
-		if rate.MinMonthlyAmount <= employee.MonthlySalary && employee.MonthlySalary <= rate.MaxMonthlyAmount {
-			selectedRate = &rates[i]
-			break
-		}
-	}
-
-	if selectedRate == nil {
-		return HealthInsuranceResponse{}, errors.New("no matching rates found for employee's company")
+	var pref models.Prefecture
+	if err := db.First(&pref, prefectureID).Error; err != nil {
+		return HealthInsuranceResponse{}, errors.New("prefecture not found")
 	}
 
 	var totalHealth, employeeHealth float64
 	if withCare {
-		totalHealth = selectedRate.HealthTotalWithCare
-		employeeHealth = selectedRate.HealthHalfWithCare
+		totalHealth = rate.HealthTotalWithCare
+		employeeHealth = rate.HealthHalfWithCare
 	} else {
-		totalHealth = selectedRate.HealthTotalNonCare
-		employeeHealth = selectedRate.HealthHalfNonCare
+		totalHealth = rate.HealthTotalNonCare
+		employeeHealth = rate.HealthHalfNonCare
 	}
 	employerHealth := totalHealth - employeeHealth
 
@@ -71,8 +67,8 @@ func CalculateInsurance(db *gorm.DB, employeeID uint) (HealthInsuranceResponse, 
 		EmployeeName:            employee.Name,
 		CompanyName:             employee.Company.Name,
 		PrefectureName:          pref.Name,
-		Grade:                   selectedRate.Grade,
-		CalculatedMonthlyAmount: selectedRate.MonthlyAmount,
+		Grade:                   rate.Grade,
+		CalculatedMonthlyAmount: rate.MonthlyAmount,
 		HealthTotal:             totalHealth,
 		EmployeeHealth:          employeeHealth,
 		EmployerHealth:          employerHealth,

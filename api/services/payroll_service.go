@@ -29,7 +29,7 @@ func CalculatePayroll(db *gorm.DB, employeeID uint, year, month int) (PayrollCal
 
 	totalAllowance := calculateTotalAllowance(emp.Allowances)
 
-	healthResp, err := CalculateInsurance(db, employeeID)
+	healthResp, err := CalculateInsurance(db, employeeID, year, month)
 	if err != nil {
 		return PayrollCalculationResponse{}, err
 	}

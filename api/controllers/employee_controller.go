@@ -68,6 +68,7 @@ func CreateEmployee(c *gin.Context) {
 	c.JSON(http.StatusOK, formatEmployee(employee))
 }
 
+// CalculateEmployeeInsurance 計算対象の年月の健康保険料レートで保険料を計算
 func CalculateEmployeeInsurance(c *gin.Context) {
 	id := c.Param("id")
 	employeeID, err := strconv.Atoi(id)
@@ -76,9 +77,32 @@ func CalculateEmployeeInsurance(c *gin.Context) {
 		return
 	}
 
-	resp, err := services.CalculateInsurance(db.DB, uint(employeeID))
+	yearParam := c.Query("year")
+	if yearParam == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "year parameter is required"})
+		return
+	}
+	year, err := strconv.Atoi(yearParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid year"})
+		return
+	}
+
+	monthParam := c.Query("month")
+	if monthParam == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "month parameter is required"})
+		return
+	}
+	month, err := strconv.Atoi(monthParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid month"})
+		return
+	}
+
+	resp, err := services.CalculateInsurance(db.DB, uint(employeeID), year, month)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, resp)
