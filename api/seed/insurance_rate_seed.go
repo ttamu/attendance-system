@@ -1,6 +1,7 @@
 package seed
 
 import (
+	"embed"
 	"fmt"
 	"github.com/t2469/attendance-system.git/models"
 	"github.com/xuri/excelize/v2"
@@ -29,8 +30,17 @@ func rmComma(s string) string {
 	return strings.ReplaceAll(s, ",", "")
 }
 
-func SeedInsuranceRates(db *gorm.DB, filePath string) error {
-	f, err := excelize.OpenFile(filePath)
+//go:embed insurance_rates.xlsx
+var insuranceFile embed.FS
+
+func SeedInsuranceRates(db *gorm.DB) error {
+	fData, err := insuranceFile.Open("insurance_rates.xlsx")
+	if err != nil {
+		return fmt.Errorf("failed to open embedded Excel file: %v", err)
+	}
+	defer fData.Close()
+
+	f, err := excelize.OpenReader(fData)
 	if err != nil {
 		return fmt.Errorf("failed to open Excel file: %v", err)
 	}
@@ -97,7 +107,7 @@ func SeedInsuranceRates(db *gorm.DB, filePath string) error {
 				minStr = "0"
 			}
 			if maxStr == "" {
-				maxStr = strconv.FormatInt(math.MaxInt64, 10)
+				maxStr = strconv.FormatInt(int64(math.MaxInt64), 10)
 			}
 			minAmt, err1 := strconv.Atoi(minStr)
 			maxAmt, err2 := strconv.Atoi(maxStr)
@@ -141,9 +151,11 @@ func SeedInsuranceRates(db *gorm.DB, filePath string) error {
 				pTotal, _ = strconv.ParseFloat(rmComma(strings.TrimSpace(rowData[9])), 64)
 				pHalf, _ = strconv.ParseFloat(rmComma(strings.TrimSpace(rowData[10])), 64)
 
-				hRecord := models.HealthInsuranceRate{
-					PrefectureID:        pref.ID,
-					Grade:               healthGrade,
+				var hRecord models.HealthInsuranceRate
+				hResult := db.Where(&models.HealthInsuranceRate{
+					PrefectureID: pref.ID,
+					Grade:        healthGrade,
+				}).Attrs(models.HealthInsuranceRate{
 					MonthlyAmount:       monthlyAmount,
 					MinMonthlyAmount:    minAmt,
 					MaxMonthlyAmount:    maxAmt,
@@ -151,29 +163,45 @@ func SeedInsuranceRates(db *gorm.DB, filePath string) error {
 					HealthHalfNonCare:   hHalfNonCare,
 					HealthTotalWithCare: hTotalWithCare,
 					HealthHalfWithCare:  hHalfWithCare,
-				}
-				if err := db.Create(&hRecord).Error; err != nil {
-					log.Printf("failed to create health record for sheet %s row %d: %v", sheetName, rowIdx, err)
+				}).FirstOrCreate(&hRecord)
+				if hResult.Error != nil {
+					log.Printf("failed to create health record for sheet %s row %d: %v", sheetName, rowIdx, hResult.Error)
+				} else {
+					if hResult.RowsAffected > 0 {
+						log.Printf("Created health record for sheet %s row %d", sheetName, rowIdx)
+					} else {
+						log.Printf("Health record already exists for sheet %s row %d", sheetName, rowIdx)
+					}
 				}
 
 				if pensionGrade != "" {
-					pRecord := models.PensionInsuranceRate{
-						PrefectureID:     pref.ID,
-						Grade:            pensionGrade,
+					var pRecord models.PensionInsuranceRate
+					pResult := db.Where(&models.PensionInsuranceRate{
+						PrefectureID: pref.ID,
+						Grade:        pensionGrade,
+					}).Attrs(models.PensionInsuranceRate{
 						MonthlyAmount:    monthlyAmount,
 						MinMonthlyAmount: minAmt,
 						MaxMonthlyAmount: maxAmt,
 						PensionTotal:     pTotal,
 						PensionHalf:      pHalf,
-					}
-					if err := db.Create(&pRecord).Error; err != nil {
-						log.Printf("failed to create pension record for sheet %s row %d: %v", sheetName, rowIdx, err)
+					}).FirstOrCreate(&pRecord)
+					if pResult.Error != nil {
+						log.Printf("failed to create pension record for sheet %s row %d: %v", sheetName, rowIdx, pResult.Error)
+					} else {
+						if pResult.RowsAffected > 0 {
+							log.Printf("Created pension record for sheet %s row %d", sheetName, rowIdx)
+						} else {
+							log.Printf("Pension record already exists for sheet %s row %d", sheetName, rowIdx)
+						}
 					}
 				}
 			} else {
-				hRecord := models.HealthInsuranceRate{
-					PrefectureID:        pref.ID,
-					Grade:               grade,
+				var hRecord models.HealthInsuranceRate
+				hResult := db.Where(&models.HealthInsuranceRate{
+					PrefectureID: pref.ID,
+					Grade:        grade,
+				}).Attrs(models.HealthInsuranceRate{
 					MonthlyAmount:       monthlyAmount,
 					MinMonthlyAmount:    minAmt,
 					MaxMonthlyAmount:    maxAmt,
@@ -181,9 +209,15 @@ func SeedInsuranceRates(db *gorm.DB, filePath string) error {
 					HealthHalfNonCare:   hHalfNonCare,
 					HealthTotalWithCare: hTotalWithCare,
 					HealthHalfWithCare:  hHalfWithCare,
-				}
-				if err := db.Create(&hRecord).Error; err != nil {
-					log.Printf("failed to create health record for sheet %s row %d: %v", sheetName, rowIdx, err)
+				}).FirstOrCreate(&hRecord)
+				if hResult.Error != nil {
+					log.Printf("failed to create health record for sheet %s row %d: %v", sheetName, rowIdx, hResult.Error)
+				} else {
+					if hResult.RowsAffected > 0 {
+						log.Printf("Created health record for sheet %s row %d", sheetName, rowIdx)
+					} else {
+						log.Printf("Health record already exists for sheet %s row %d", sheetName, rowIdx)
+					}
 				}
 			}
 		}

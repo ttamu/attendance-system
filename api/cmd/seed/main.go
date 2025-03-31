@@ -29,12 +29,12 @@ func main() {
 		log.Fatalf("SeedEmployees failed: %v", err)
 	}
 
-	if err := seed.SeedAttendances(db.DB); err != nil {
-		log.Fatalf("SeedAttendances failed: %v", err)
+	if err := seed.SeedInsuranceRates(db.DB); err != nil {
+		log.Fatalf("seedInsuranceRates failed: %v", err)
 	}
 
-	if err := seed.SeedInsuranceRates(db.DB, "seed/insurance_rates.xlsx"); err != nil {
-		log.Fatalf("seedInsuranceRates failed: %v", err)
+	if err := seed.SeedAccounts(db.DB); err != nil {
+		log.Fatalf("SeedAccounts failed: %v", err)
 	}
 
 	log.Println("Seeding completed successfully.")
