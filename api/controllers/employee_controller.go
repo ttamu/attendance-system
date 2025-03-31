@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/t2469/attendance-system.git/db"
+	"github.com/t2469/attendance-system.git/helpers"
 	"github.com/t2469/attendance-system.git/models"
 	"github.com/t2469/attendance-system.git/services"
 	"net/http"
@@ -44,8 +45,20 @@ func GetEmployee(c *gin.Context) {
 	id := c.Param("id")
 	var employee models.Employee
 
+	companyID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
 	if err := db.DB.First(&employee, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 会社IDが一致しない場合アクセスを拒否
+	if employee.CompanyID != companyID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "access denied"})
 		return
 	}
 
