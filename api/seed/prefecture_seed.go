@@ -21,16 +21,23 @@ type Prefecture = models.Prefecture
 
 func SeedPrefectures(db *gorm.DB) error {
 	for _, name := range prefectureNames {
-		var pref = models.Prefecture{
+		var pref models.Prefecture
+		result := db.FirstOrCreate(&pref, models.Prefecture{
 			Name:               name,
 			HealthRateNoCare:   0,
 			HealthRateWithCare: 0,
 			PensionRate:        0,
+		})
+
+		if result.Error != nil {
+			log.Printf("Failed to create prefecture %s: %v", name, result.Error)
+			continue
 		}
-		if err := db.Create(&pref).Error; err != nil {
-			log.Fatal(err)
+
+		if result.RowsAffected > 0 {
+			log.Println("Created prefecture:", name)
 		} else {
-			log.Println("Created prefecture", pref.Name)
+			log.Println("Prefecture already exists:", name)
 		}
 	}
 	return nil
