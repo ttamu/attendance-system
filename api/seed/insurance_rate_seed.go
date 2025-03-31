@@ -119,6 +119,12 @@ func SeedInsuranceRates(db *gorm.DB) error {
 			startRow := 12
 			endRow := 61
 
+			// 期間：2025年度のデータなら2025年3月から2026年2月まで適用
+			fromYear := fileMapping.Year
+			fromMonth := newMonth
+			toYear := fileMapping.Year + 1
+			toMonth := newMonth - 1
+
 			for rowIdx := startRow; rowIdx <= endRow; rowIdx++ {
 				rowData := rows[rowIdx-1]
 				grade := strings.ToValidUTF8(strings.TrimSpace(rowData[0]), "")
@@ -186,8 +192,8 @@ func SeedInsuranceRates(db *gorm.DB) error {
 					hResult := db.Where(&models.HealthInsuranceRate{
 						PrefectureID: pref.ID,
 						Grade:        healthGrade,
-						Year:         fileMapping.Year,
-						Month:        newMonth,
+						FromYear:     fromYear,
+						FromMonth:    fromMonth,
 					}).Attrs(models.HealthInsuranceRate{
 						MonthlyAmount:       monthlyAmount,
 						MinMonthlyAmount:    minAmt,
@@ -196,6 +202,8 @@ func SeedInsuranceRates(db *gorm.DB) error {
 						HealthHalfNonCare:   hHalfNonCare,
 						HealthTotalWithCare: hTotalWithCare,
 						HealthHalfWithCare:  hHalfWithCare,
+						ToYear:              toYear,
+						ToMonth:             toMonth,
 					}).FirstOrCreate(&hRecord)
 					if hResult.Error != nil {
 						log.Printf("failed to create health record for sheet %s row %d: %v", sheetName, rowIdx, hResult.Error)
@@ -207,14 +215,16 @@ func SeedInsuranceRates(db *gorm.DB) error {
 						pResult := db.Where(&models.PensionInsuranceRate{
 							PrefectureID: pref.ID,
 							Grade:        pensionGrade,
-							Year:         fileMapping.Year,
-							Month:        newMonth,
+							FromYear:     fromYear,
+							FromMonth:    fromMonth,
 						}).Attrs(models.PensionInsuranceRate{
 							MonthlyAmount:    monthlyAmount,
 							MinMonthlyAmount: minAmt,
 							MaxMonthlyAmount: maxAmt,
 							PensionTotal:     pTotal,
 							PensionHalf:      pHalf,
+							ToYear:           toYear,
+							ToMonth:          toMonth,
 						}).FirstOrCreate(&pRecord)
 						if pResult.Error != nil {
 							log.Printf("failed to create pension record for sheet %s row %d: %v", sheetName, rowIdx, pResult.Error)
@@ -226,8 +236,8 @@ func SeedInsuranceRates(db *gorm.DB) error {
 					hResult := db.Where(&models.HealthInsuranceRate{
 						PrefectureID: pref.ID,
 						Grade:        grade,
-						Year:         fileMapping.Year,
-						Month:        newMonth,
+						FromYear:     fromYear,
+						FromMonth:    fromMonth,
 					}).Attrs(models.HealthInsuranceRate{
 						MonthlyAmount:       monthlyAmount,
 						MinMonthlyAmount:    minAmt,
@@ -236,6 +246,8 @@ func SeedInsuranceRates(db *gorm.DB) error {
 						HealthHalfNonCare:   hHalfNonCare,
 						HealthTotalWithCare: hTotalWithCare,
 						HealthHalfWithCare:  hHalfWithCare,
+						ToYear:              toYear,
+						ToMonth:             toMonth,
 					}).FirstOrCreate(&hRecord)
 					if hResult.Error != nil {
 						log.Printf("failed to create health record for sheet %s row %d: %v", sheetName, rowIdx, hResult.Error)
