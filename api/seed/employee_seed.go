@@ -21,21 +21,49 @@ func SeedEmployees(db *gorm.DB) error {
 		return err
 	}
 
-	employees := []models.Employee{
+	tokyoEmployees := []models.Employee{
 		{
 			CompanyID:     companyTokyo.ID,
-			Name:          "山田太郎",
+			Name:          "東京なこ",
 			MonthlySalary: 300000,
 			DateOfBirth:   time.Date(1985, time.April, 15, 0, 0, 0, 0, time.UTC),
 		},
 		{
-			CompanyID:     companyHokkaido.ID,
-			Name:          "佐藤花子",
-			MonthlySalary: 280000,
-			DateOfBirth:   time.Date(1990, time.June, 10, 0, 0, 0, 0, time.UTC),
+			CompanyID:     companyTokyo.ID,
+			Name:          "東京じろう",
+			MonthlySalary: 320000,
+			DateOfBirth:   time.Date(1988, time.May, 10, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			CompanyID:     companyTokyo.ID,
+			Name:          "東京さぶろう",
+			MonthlySalary: 310000,
+			DateOfBirth:   time.Date(1990, time.January, 20, 0, 0, 0, 0, time.UTC),
 		},
 	}
 
+	hokkaidoEmployees := []models.Employee{
+		{
+			CompanyID:     companyHokkaido.ID,
+			Name:          "北海道太郎",
+			MonthlySalary: 280000,
+			DateOfBirth:   time.Date(1985, time.February, 5, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			CompanyID:     companyHokkaido.ID,
+			Name:          "北海道花子",
+			MonthlySalary: 270000,
+			DateOfBirth:   time.Date(1987, time.June, 18, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			CompanyID:     companyHokkaido.ID,
+			Name:          "北海道次郎",
+			MonthlySalary: 290000,
+			DateOfBirth:   time.Date(1992, time.December, 25, 0, 0, 0, 0, time.UTC),
+		},
+	}
+
+	employees := append(tokyoEmployees, hokkaidoEmployees...)
 	for _, emp := range employees {
 		var employee models.Employee
 		result := db.Where(&models.Employee{
@@ -45,8 +73,7 @@ func SeedEmployees(db *gorm.DB) error {
 			Attrs(models.Employee{
 				MonthlySalary: emp.MonthlySalary,
 				DateOfBirth:   emp.DateOfBirth,
-			}).
-			FirstOrCreate(&employee)
+			}).FirstOrCreate(&employee)
 		if result.Error != nil {
 			log.Printf("failed to create employee %s: %v", emp.Name, result.Error)
 			return result.Error
