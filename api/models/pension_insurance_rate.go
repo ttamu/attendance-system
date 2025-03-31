@@ -11,4 +11,6 @@ type PensionInsuranceRate struct {
 	MaxMonthlyAmount int
 	PensionTotal     float64
 	PensionHalf      float64
+	Year             int
+	Month            int
 }
