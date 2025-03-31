@@ -68,10 +68,18 @@ func GetEmployee(c *gin.Context) {
 func CreateEmployee(c *gin.Context) {
 	var employee models.Employee
 
+	companyID, err := helpers.GetCompanyID(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
 	if err := c.ShouldBindJSON(&employee); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	employee.CompanyID = companyID
 
 	if err := db.DB.Create(&employee).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
