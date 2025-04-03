@@ -119,9 +119,9 @@ export default function AllowanceTypesPage() {
                         {list.map(at =>
                             <li key={at.id} className="border p-4 rounded flex justify-between items-center">
                                 <div>
-                                    <strong className="text-gray-900">{at.name}</strong> ({at.type})<br/>
+                                    <strong className="text-gray-900">{at.name}</strong><br/>
                                     <span className="text-gray-600">{at.description}</span> -
-                                    コミッション率: {at.commission_rate}
+                                    歩合率: {at.commission_rate}
                                 </div>
                                 <div className="flex space-x-2">
                                     <Button variant="link" onClick={() => setEdit(at)}

@@ -199,7 +199,7 @@ const AssignAllowancePage: React.FC = () => {
                                         </strong>
                                         {" - "}
                                         手当タイプID: {a.allowance_type_id} <br/>
-                                        金額: {a.amount} 円, 歩合率: {a.commission_rate}%, {a.year}/{a.month}
+                                        金額: {a.amount} 円 歩合率: {a.commission_rate} {a.year}/{a.month}
                                     </div>
                                     <Button
                                         variant="link"
