@@ -3,20 +3,21 @@ package routes
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/line/line-bot-sdk-go/v8/linebot/messaging_api"
 	"github.com/t2469/attendance-system.git/config"
 	"log"
 	"net/http"
 	"time"
 )
 
-func Run(cfg *config.Config) {
-	router := setupRouter(cfg)
+func Run(cfg *config.Config, bot *messaging_api.MessagingApiAPI) {
+	router := setupRouter(cfg, bot)
 	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("failed to run server: %v", err)
 	}
 }
 
-func setupRouter(cfg *config.Config) *gin.Engine {
+func setupRouter(cfg *config.Config, bot *messaging_api.MessagingApiAPI) *gin.Engine {
 	router := gin.Default()
 	setCors(router, cfg)
 
@@ -31,6 +32,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	addTimeClockRoutes(router)
 	addWorkRecordRoutes(router)
 	addClockRequestRoutes(router)
+	addLineWebhookRoutes(router, cfg, bot)
 
 	return router
 }
