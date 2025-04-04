@@ -31,6 +31,7 @@ func setupRouter(cfg *config.Config) *gin.Engine {
 	addTimeClockRoutes(router)
 	addWorkRecordRoutes(router)
 	addClockRequestRoutes(router)
+	addLineWebhookRoutes(router, cfg)
 
 	return router
 }

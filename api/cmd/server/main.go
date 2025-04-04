@@ -5,12 +5,16 @@ import (
 	"github.com/t2469/attendance-system.git/db"
 	"github.com/t2469/attendance-system.git/models"
 	"github.com/t2469/attendance-system.git/routes"
+	"github.com/t2469/attendance-system.git/services"
 	"log"
 	"time"
 )
 
 func main() {
 	cfg := config.LoadEnv()
+
+	// LineBotの初期化
+	services.InitLineBot(cfg)
 
 	loc, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {

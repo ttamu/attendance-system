@@ -7,7 +7,9 @@ import (
 )
 
 type Config struct {
-	AllowedOrigin string
+	AllowedOrigin     string
+	LineChannelSecret string
+	LineChannelToken  string
 }
 
 func LoadEnv() *Config {
@@ -20,8 +22,12 @@ func LoadEnv() *Config {
 	}
 
 	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
+	lineChannelSecret := os.Getenv("LINE_CHANNEL_SECRET")
+	lineChannelToken := os.Getenv("LINE_CHANNEL_ACCESS_TOKEN")
 
 	return &Config{
-		AllowedOrigin: allowedOrigin,
+		AllowedOrigin:     allowedOrigin,
+		LineChannelSecret: lineChannelSecret,
+		LineChannelToken:  lineChannelToken,
 	}
 }
