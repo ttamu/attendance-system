@@ -82,6 +82,18 @@ variable "db_name" {
   sensitive   = true
 }
 
+variable "line_channel_secret" {
+  description = "Line channel secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "line_channel_access_token" {
+  description = "Line_channel_access_token"
+  type        = string
+  sensitive   = true
+}
+
 variable "admin_ip" {
   description = "Administrator's public IP address"
   type        = string

@@ -78,7 +78,9 @@ resource "aws_ecs_task_definition" "api_task" {
         { name = "DB_NAME", value = var.db_name },
         { name = "GO_ENV", value = "production" },
         { name = "JWT_SECRET", value = var.jwt_secret },
-        { name = "ALLOWED_ORIGIN", value = var.allowed_origin }
+        { name = "ALLOWED_ORIGIN", value = var.allowed_origin },
+        { name = "LINE_CHANNEL_SECRET", value = var.line_channel_secret },
+        { name = "LINE_CHANNEL_ACCESS_TOKEN", value = var.line_channel_access_token }
       ]
       logConfiguration = {
         logDriver = "awslogs"
