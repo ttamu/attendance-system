@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/line/line-bot-sdk-go/v8/linebot/messaging_api"
 	"github.com/line/line-bot-sdk-go/v8/linebot/webhook"
 	"github.com/t2469/attendance-system.git/db"
 	"github.com/t2469/attendance-system.git/models"
@@ -13,7 +12,7 @@ import (
 	"strings"
 )
 
-func HandleLineWebhook(channelSecret string, bot *messaging_api.MessagingApiAPI) gin.HandlerFunc {
+func HandleLineWebhook(channelSecret string) gin.HandlerFunc {
 	handler, err := webhook.NewWebhookHandler(channelSecret)
 	if err != nil {
 		log.Fatalf("Error: Failed to create webhook handler: %v", err)
@@ -31,14 +30,14 @@ func HandleLineWebhook(channelSecret string, bot *messaging_api.MessagingApiAPI)
 
 				// 「登録テスト」メッセージの場合は接続確認用の返信
 				if text == "登録テスト" {
-					services.Reply(bot, e.ReplyToken, "接続OK!")
+					services.Reply(e.ReplyToken, "接続OK!")
 					return
 				}
 
 				// 「登録 <社員ID> <名前>」形式のメッセージを処理
 				regMsg := strings.Fields(text)
 				if len(regMsg) != 3 || regMsg[0] != "登録" {
-					services.Reply(bot, e.ReplyToken, "「登録 <社員ID> <名前>」形式のメッセージを送信してください。")
+					services.Reply(e.ReplyToken, "「登録 <社員ID> <名前>」形式のメッセージを送信してください。")
 					return
 				}
 				empIdStr, name := regMsg[1], regMsg[2]
@@ -46,14 +45,14 @@ func HandleLineWebhook(channelSecret string, bot *messaging_api.MessagingApiAPI)
 				empId, convErr := strconv.Atoi(empIdStr)
 				if convErr != nil {
 					log.Println(convErr)
-					services.Reply(bot, e.ReplyToken, "社員IDの形式が正しくありません。")
+					services.Reply(e.ReplyToken, "社員IDの形式が正しくありません。")
 					return
 				}
 
 				lineUserId, ok := services.GetUserId(e.Source)
 				if !ok {
 					log.Println(e.Source)
-					services.Reply(bot, e.ReplyToken, "UserIDの取得に失敗しました。")
+					services.Reply(e.ReplyToken, "UserIDの取得に失敗しました。")
 					return
 				}
 
@@ -61,21 +60,21 @@ func HandleLineWebhook(channelSecret string, bot *messaging_api.MessagingApiAPI)
 				err := db.DB.Where("id = ? AND name = ?", empId, name).First(&emp).Error
 				if err != nil {
 					log.Println(err)
-					services.Reply(bot, e.ReplyToken, "登録できませんでした。IDまたは名前を確認してください。")
+					services.Reply(e.ReplyToken, "登録できませんでした。IDまたは名前を確認してください。")
 					return
 				}
 
 				isLinked := emp.LineUserID != nil
 				if err := db.DB.Model(&emp).Updates(models.Employee{LineUserID: &lineUserId}).Error; err != nil {
 					log.Println(err)
-					services.Reply(bot, e.ReplyToken, "登録中にエラーが発生しました。")
+					services.Reply(e.ReplyToken, "登録中にエラーが発生しました。")
 					return
 				}
 
 				if isLinked {
-					services.Reply(bot, e.ReplyToken, "登録情報を更新しました。")
+					services.Reply(e.ReplyToken, "登録情報を更新しました。")
 				} else {
-					services.Reply(bot, e.ReplyToken, "登録が完了しました。")
+					services.Reply(e.ReplyToken, "登録が完了しました。")
 				}
 			}
 		}

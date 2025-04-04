@@ -14,7 +14,7 @@ func main() {
 	cfg := config.LoadEnv()
 
 	// LineBotの初期化
-	bot := services.InitLineBot(cfg)
+	services.InitLineBot(cfg)
 
 	loc, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
@@ -40,5 +40,5 @@ func main() {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
 
-	routes.Run(cfg, bot)
+	routes.Run(cfg)
 }
