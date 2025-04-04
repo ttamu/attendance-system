@@ -41,3 +41,19 @@ func Reply(replyToken string, msg string) {
 		log.Printf(err.Error())
 	}
 }
+
+// SendMessage UserIdが設定されている前提 (LINE連携済みユーザーへメッセージを送信する際に使用)
+func SendMessage(UserId string, msg string) error {
+	_, err := LineBot.PushMessage(
+		&messaging_api.PushMessageRequest{
+			To: UserId,
+			Messages: []messaging_api.MessageInterface{
+				&messaging_api.TextMessage{Text: msg},
+			},
+		}, "",
+	)
+	if err != nil {
+		log.Printf(err.Error())
+	}
+	return err
+}
