@@ -20,16 +20,16 @@
 
 > ここからアクセスできます：[https://attendance.t2469.com](https://attendance.t2469.com)
 
-### ログイン情報（テスト用）
+## ログイン情報（テスト用）
 
-#### 管理者アカウント
+### 管理者アカウント
 
 ```
 Email:    tokyo_admin@example.com
 Password: password
 ```
 
-#### 従業員アカウント
+### 従業員アカウント
 
 ```
 Email:    tokyo_user@example.com
@@ -37,8 +37,18 @@ Password: password
 ```
 
 ---
-管理者ページは画像の右上にあるアイコンからアクセスできます。
-![Attendance System](attendance-system.png)
+
+## LINE Bot連携
+
+通知例（打刻忘れ）  
+<img src="images/line-bot.jpg" alt="LINE Bot通知" width="400" />
+
+---
+
+## 管理者ダッシュボード
+
+画面右上のアイコンから管理者ページへアクセス可能です。  
+<img src="images/attendance-system.png" alt="Attendance System UI" width="400" />
 
 ---
 
