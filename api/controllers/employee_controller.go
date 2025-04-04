@@ -15,6 +15,7 @@ func formatEmployee(emp models.Employee) gin.H {
 	return gin.H{
 		"id":             emp.ID,
 		"name":           emp.Name,
+		"line_linked":    emp.LineUserID != nil && *emp.LineUserID != "",
 		"monthly_salary": emp.MonthlySalary,
 		"date_of_birth":  emp.DateOfBirth.In(time.Local).Format("2006/1/2"),
 	}
