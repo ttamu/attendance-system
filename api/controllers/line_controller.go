@@ -6,6 +6,7 @@ import (
 	"github.com/line/line-bot-sdk-go/v8/linebot/webhook"
 	"github.com/t2469/attendance-system.git/db"
 	"github.com/t2469/attendance-system.git/models"
+	"github.com/t2469/attendance-system.git/services"
 	"log"
 	"net/http"
 	"strconv"
@@ -30,14 +31,14 @@ func HandleLineWebhook(channelSecret string, bot *messaging_api.MessagingApiAPI)
 
 				// 「登録テスト」メッセージの場合は接続確認用の返信
 				if text == "登録テスト" {
-					reply(bot, e.ReplyToken, "接続OK!")
+					services.Reply(bot, e.ReplyToken, "接続OK!")
 					return
 				}
 
 				// 「登録 <社員ID> <名前>」形式のメッセージを処理
 				regMsg := strings.Fields(text)
 				if len(regMsg) != 3 || regMsg[0] != "登録" {
-					reply(bot, e.ReplyToken, "「登録 <社員ID> <名前>」形式のメッセージを送信してください。")
+					services.Reply(bot, e.ReplyToken, "「登録 <社員ID> <名前>」形式のメッセージを送信してください。")
 					return
 				}
 				empIdStr, name := regMsg[1], regMsg[2]
@@ -45,14 +46,14 @@ func HandleLineWebhook(channelSecret string, bot *messaging_api.MessagingApiAPI)
 				empId, convErr := strconv.Atoi(empIdStr)
 				if convErr != nil {
 					log.Println(convErr)
-					reply(bot, e.ReplyToken, "社員IDの形式が正しくありません。")
+					services.Reply(bot, e.ReplyToken, "社員IDの形式が正しくありません。")
 					return
 				}
 
-				lineUserId, ok := getUserId(e.Source)
+				lineUserId, ok := services.GetUserId(e.Source)
 				if !ok {
 					log.Println(e.Source)
-					reply(bot, e.ReplyToken, "UserIDの取得に失敗しました。")
+					services.Reply(bot, e.ReplyToken, "UserIDの取得に失敗しました。")
 					return
 				}
 
@@ -60,21 +61,21 @@ func HandleLineWebhook(channelSecret string, bot *messaging_api.MessagingApiAPI)
 				err := db.DB.Where("id = ? AND name = ?", empId, name).First(&emp).Error
 				if err != nil {
 					log.Println(err)
-					reply(bot, e.ReplyToken, "登録できませんでした。IDまたは名前を確認してください。")
+					services.Reply(bot, e.ReplyToken, "登録できませんでした。IDまたは名前を確認してください。")
 					return
 				}
 
 				isLinked := emp.LineUserID != nil
 				if err := db.DB.Model(&emp).Updates(models.Employee{LineUserID: &lineUserId}).Error; err != nil {
 					log.Println(err)
-					reply(bot, e.ReplyToken, "登録中にエラーが発生しました。")
+					services.Reply(bot, e.ReplyToken, "登録中にエラーが発生しました。")
 					return
 				}
 
 				if isLinked {
-					reply(bot, e.ReplyToken, "登録情報を更新しました。")
+					services.Reply(bot, e.ReplyToken, "登録情報を更新しました。")
 				} else {
-					reply(bot, e.ReplyToken, "登録が完了しました。")
+					services.Reply(bot, e.ReplyToken, "登録が完了しました。")
 				}
 			}
 		}
@@ -82,29 +83,5 @@ func HandleLineWebhook(channelSecret string, bot *messaging_api.MessagingApiAPI)
 
 	return func(c *gin.Context) {
 		handler.ServeHTTP(c.Writer, c.Request)
-	}
-}
-
-func getUserId(source webhook.SourceInterface) (string, bool) {
-	switch s := source.(type) {
-	case webhook.UserSource:
-		return s.UserId, true
-	case *webhook.UserSource:
-		return s.UserId, true
-	}
-	return "", false
-}
-
-func reply(bot *messaging_api.MessagingApiAPI, replyToken string, msg string) {
-	_, err := bot.ReplyMessage(&messaging_api.ReplyMessageRequest{
-		ReplyToken: replyToken,
-		Messages: []messaging_api.MessageInterface{
-			messaging_api.TextMessage{
-				Text: msg,
-			},
-		},
-	})
-	if err != nil {
-		log.Printf(err.Error())
 	}
 }
