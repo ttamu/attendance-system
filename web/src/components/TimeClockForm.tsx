@@ -1,20 +1,24 @@
-import React, { FormEvent, useState } from "react";
-import { createTimeClock } from "../services/api";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import React, {FormEvent, useState} from "react";
+import {createTimeClock} from "../services/api";
+import {Card, CardContent} from "@/components/ui/card";
+import {Label} from "@/components/ui/label";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
 
 interface TimeClockFormProps {
     employeeId: number;
     onTimeClockAdded: () => void;
+    isLineLinked: boolean; // LINE連携済みかどうかのフラグ
 }
 
-const TimeClockForm: React.FC<TimeClockFormProps> = ({ employeeId, onTimeClockAdded }) => {
+const TimeClockForm: React.FC<TimeClockFormProps> = ({employeeId, onTimeClockAdded, isLineLinked,}) => {
     const [type, setType] = useState<string>("clock_in");
     const [timestamp, setTimestamp] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [success, setSuccess] = useState<boolean>(false);
+    const [notify, setNotify] = useState<boolean>(false);
+    const [delayH, setDelayH] = useState<number>(0);
+    const [delayM, setDelayM] = useState<number>(0);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -26,6 +30,9 @@ const TimeClockForm: React.FC<TimeClockFormProps> = ({ employeeId, onTimeClockAd
             await createTimeClock<unknown>(employeeId.toString(), {
                 type,
                 timestamp: timestampISO,
+                notify,
+                delay_h: delayH,
+                delay_m: delayM,
             });
 
             setTimestamp("");
@@ -77,6 +84,57 @@ const TimeClockForm: React.FC<TimeClockFormProps> = ({ employeeId, onTimeClockAd
                             required
                         />
                     </div>
+
+                    <div>
+                        <Label htmlFor="notify">通知する</Label>
+                        <input
+                            type="checkbox"
+                            id="notify"
+                            checked={notify}
+                            onChange={(e) => setNotify(e.target.checked)}
+                            disabled={!isLineLinked} // LINE連携していない場合は無効にする
+                            className="mr-2"
+                        />
+                        {!isLineLinked && (
+                            <span className="text-gray-500 text-sm">LINE連携されていないため通知は利用できません</span>
+                        )}
+                    </div>
+
+                    {isLineLinked && notify && (
+                        <>
+                            <div>
+                                <Label htmlFor="delayH">通知までの時間 (時)</Label>
+                                <select
+                                    id="delayH"
+                                    value={delayH}
+                                    onChange={(e) => setDelayH(Number(e.target.value))}
+                                    className="border p-2 rounded w-full"
+                                >
+                                    {[...Array(13).keys()].map((h) => (
+                                        <option key={h} value={h}>
+                                            {h} 時間
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <Label htmlFor="delayM">通知までの時間 (分)</Label>
+                                <select
+                                    id="delayM"
+                                    value={delayM}
+                                    onChange={(e) => setDelayM(Number(e.target.value))}
+                                    className="border p-2 rounded w-full"
+                                >
+                                    {[0, 5, 10, 15, 20, 30, 45, 50, 55].map((m) => (
+                                        <option key={m} value={m}>
+                                            {m} 分
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </>
+                    )}
+
                     <Button type="submit">登録</Button>
                 </form>
             </CardContent>

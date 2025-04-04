@@ -98,7 +98,10 @@ const EmployeeDetailPage: React.FC = () => {
                         <CalendarCheck2 className="w-5 h-5 text-blue-600"/>
                         <h2 className="text-xl font-semibold text-gray-800">打刻登録</h2>
                     </div>
-                    <TimeClockForm employeeId={Number(id)} onTimeClockAdded={handleTimeClockAdded}/>
+                    <TimeClockForm employeeId={Number(id)}
+                                   onTimeClockAdded={handleTimeClockAdded}
+                                   isLineLinked={employee.line_linked}
+                    />
                 </section>
             </CardContent>
         </Card>
