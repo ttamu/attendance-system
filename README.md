@@ -40,7 +40,7 @@ Password: password
 
 ## LINE Bot連携
 
-LINEからの打刻やガイド  
+ガイド・打刻  
 <img src="images/line_clock.jpg" alt="LINE Bot通知" width="400" />
 
 通知例（打刻忘れ）  
