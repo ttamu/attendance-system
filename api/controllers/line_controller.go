@@ -17,9 +17,12 @@ import (
 type lineCmd func(e webhook.MessageEvent, tokens []string)
 
 var cmdMap = map[string]lineCmd{
-	"テスト": test,
-	"登録":   register,
-	"出勤":   clockIn,
+	"登録":     register,
+	"テスト":   test,
+	"出勤":     clockIn,
+	"退勤":     clockOut,
+	"休憩開始": breakBegin,
+	"休憩終了": breakEnd,
 }
 
 func usage() string {
@@ -31,6 +34,9 @@ func usage() string {
 	helps := []help{
 		{"登録 <社員ID> <名前>", "従業員とLINEアカウントを紐付けます。既に紐付いている場合は情報を更新します。"},
 		{"出勤", "現在時刻で出勤打刻を登録します。"},
+		{"退勤", "現在時刻で退勤打刻を登録します。"},
+		{"休憩開始", "現在時刻で休憩開始の打刻を登録します。"},
+		{"休憩終了", "現在時刻で休憩終了の打刻を登録します。"},
 	}
 
 	var sb strings.Builder
@@ -134,6 +140,21 @@ func register(e webhook.MessageEvent, tokens []string) {
 }
 
 func clockIn(e webhook.MessageEvent, tokens []string) {
+	clock(e, tokens, models.ClockIn, "出勤")
+}
+
+func clockOut(e webhook.MessageEvent, tokens []string) {
+	clock(e, tokens, models.ClockOut, "退勤")
+}
+
+func breakBegin(e webhook.MessageEvent, tokens []string) {
+	clock(e, tokens, models.BreakBegin, "休憩開始")
+}
+func breakEnd(e webhook.MessageEvent, tokens []string) {
+	clock(e, tokens, models.BreakEnd, "休憩終了")
+}
+
+func clock(e webhook.MessageEvent, _ []string, clockType models.TimeClockType, clockName string) {
 	lineUserId, ok := services.GetLineUserId(e.Source)
 	if !ok {
 		services.Reply(e.ReplyToken, "ユーザー情報の取得に失敗しました。")
@@ -153,7 +174,7 @@ func clockIn(e webhook.MessageEvent, tokens []string) {
 	var ngList []string
 
 	for _, emp := range employees {
-		_, err := services.RecordTimeClock(emp.ID, models.ClockIn, now)
+		_, err := services.RecordTimeClock(emp.ID, clockType, now)
 		info := fmt.Sprintf("%sさん", emp.Name)
 		if err != nil {
 			log.Println(err)
@@ -167,20 +188,20 @@ func clockIn(e webhook.MessageEvent, tokens []string) {
 	// 登録が1人だけの場合はシンプルなメッセージにする
 	if len(employees) == 1 {
 		if len(okList) == 1 {
-			sb.WriteString(fmt.Sprintf("%sの出勤打刻を行いました！", okList[0]))
+			sb.WriteString(fmt.Sprintf("%sの%s打刻を行いました！", okList[0], clockName))
 		} else {
-			sb.WriteString(fmt.Sprintf("%sの出勤打刻に失敗しました...", ngList[0]))
+			sb.WriteString(fmt.Sprintf("%sの%s打刻に失敗しました...", ngList[0], clockName))
 		}
 	} else {
 		// 複数人いる場合のみリスト表示する
 		if len(okList) > 0 {
-			sb.WriteString("以下の従業員の出勤打刻を行いました！\n")
+			sb.WriteString(fmt.Sprintf("以下の従業員の%s打刻を行いました！\n", clockName))
 			for _, info := range okList {
 				sb.WriteString("・" + info + "\n")
 			}
 		}
 		if len(ngList) > 0 {
-			sb.WriteString("\n以下の従業員の出勤打刻に失敗しました。\n")
+			sb.WriteString(fmt.Sprintf("以下の従業員の%s打刻に失敗しました。\n", clockName))
 			for _, info := range ngList {
 				sb.WriteString("・" + info + "\n")
 			}
