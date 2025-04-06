@@ -40,9 +40,9 @@ func usage() string {
 	}
 
 	var sb strings.Builder
-	sb.WriteString("==============================\n")
+	sb.WriteString("=============\n")
 	sb.WriteString("ご利用ガイド\n")
-	sb.WriteString("==============================\n\n")
+	sb.WriteString("=============\n")
 
 	for _, c := range helps {
 		sb.WriteString(c.Cmd + "\n")
