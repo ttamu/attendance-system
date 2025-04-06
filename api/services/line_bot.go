@@ -17,7 +17,7 @@ func InitLineBot(cfg *config.Config) {
 	LineBot = bot
 }
 
-func GetUserId(source webhook.SourceInterface) (string, bool) {
+func GetLineUserId(source webhook.SourceInterface) (string, bool) {
 	switch s := source.(type) {
 	case webhook.UserSource:
 		return s.UserId, true

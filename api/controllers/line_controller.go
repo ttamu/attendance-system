@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v8/linebot/webhook"
 	"github.com/t2469/attendance-system.git/db"
@@ -10,13 +11,15 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type lineCmd func(e webhook.MessageEvent, tokens []string)
 
 var cmdMap = map[string]lineCmd{
-	"登録":   register,
 	"テスト": test,
+	"登録":   register,
+	"出勤":   clockIn,
 }
 
 func usage() string {
@@ -101,7 +104,7 @@ func register(e webhook.MessageEvent, tokens []string) {
 		return
 	}
 
-	lineUserId, ok := services.GetUserId(e.Source)
+	lineUserId, ok := services.GetLineUserId(e.Source)
 	if !ok {
 		log.Println(e.Source)
 		services.Reply(e.ReplyToken, "UserIDの取得に失敗しました。")
@@ -128,4 +131,61 @@ func register(e webhook.MessageEvent, tokens []string) {
 	} else {
 		services.Reply(e.ReplyToken, "登録が完了しました。")
 	}
+}
+
+func clockIn(e webhook.MessageEvent, tokens []string) {
+	lineUserId, ok := services.GetLineUserId(e.Source)
+	if !ok {
+		services.Reply(e.ReplyToken, "ユーザー情報の取得に失敗しました。")
+		return
+	}
+
+	// 1つのLINEアカウントで複数ユーザーを登録している可能性があるため Find で複数レコードを取得
+	var employees []models.Employee
+	err := db.DB.Where("line_user_id = ?", lineUserId).Find(&employees).Error
+	if err != nil || len(employees) == 0 {
+		services.Reply(e.ReplyToken, "従業員が登録されていません。")
+		return
+	}
+
+	now := time.Now()
+	var okList []string
+	var ngList []string
+
+	for _, emp := range employees {
+		_, err := services.RecordTimeClock(emp.ID, models.ClockIn, now)
+		info := fmt.Sprintf("%sさん", emp.Name)
+		if err != nil {
+			log.Println(err)
+			ngList = append(ngList, info)
+		} else {
+			okList = append(okList, info)
+		}
+	}
+
+	var sb strings.Builder
+	// 登録が1人だけの場合はシンプルなメッセージにする
+	if len(employees) == 1 {
+		if len(okList) == 1 {
+			sb.WriteString(fmt.Sprintf("%sの出勤打刻を行いました！", okList[0]))
+		} else {
+			sb.WriteString(fmt.Sprintf("%sの出勤打刻に失敗しました...", ngList[0]))
+		}
+	} else {
+		// 複数人いる場合のみリスト表示する
+		if len(okList) > 0 {
+			sb.WriteString("以下の従業員の出勤打刻を行いました！\n")
+			for _, info := range okList {
+				sb.WriteString("・" + info + "\n")
+			}
+		}
+		if len(ngList) > 0 {
+			sb.WriteString("\n以下の従業員の出勤打刻に失敗しました。\n")
+			for _, info := range ngList {
+				sb.WriteString("・" + info + "\n")
+			}
+		}
+	}
+
+	services.Reply(e.ReplyToken, sb.String())
 }
