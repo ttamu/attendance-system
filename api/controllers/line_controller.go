@@ -19,6 +19,31 @@ var cmdMap = map[string]lineCmd{
 	"テスト": test,
 }
 
+func usage() string {
+	type help struct {
+		Cmd  string
+		Desc string
+	}
+
+	helps := []help{
+		{"登録 <社員ID> <名前>", "従業員とLINEアカウントを紐付けます。既に紐付いている場合は情報を更新します。"},
+		{"出勤", "現在時刻で出勤打刻を登録します。"},
+	}
+
+	var sb strings.Builder
+	sb.WriteString("==============================\n")
+	sb.WriteString("ご利用ガイド\n")
+	sb.WriteString("==============================\n\n")
+
+	for _, c := range helps {
+		sb.WriteString(c.Cmd + "\n")
+		sb.WriteString("    └ " + c.Desc + "\n\n")
+	}
+
+	sb.WriteString("※ コマンドは半角スペースで区切って送信してください。")
+	return sb.String()
+}
+
 func HandleLineWebhook(channelSecret string) gin.HandlerFunc {
 	handler, err := webhook.NewWebhookHandler(channelSecret)
 	if err != nil {
@@ -37,7 +62,7 @@ func HandleLineWebhook(channelSecret string) gin.HandlerFunc {
 				tokens := strings.Fields(text)
 
 				if len(tokens) == 0 {
-					services.Reply(e.ReplyToken, "メッセージを送信してください。")
+					services.Reply(e.ReplyToken, usage())
 					return
 				}
 
@@ -47,7 +72,7 @@ func HandleLineWebhook(channelSecret string) gin.HandlerFunc {
 					return
 				}
 
-				services.Reply(e.ReplyToken, "定義されていません。")
+				services.Reply(e.ReplyToken, usage())
 			}
 		}
 	})
@@ -57,7 +82,7 @@ func HandleLineWebhook(channelSecret string) gin.HandlerFunc {
 	}
 }
 
-func test(e webhook.MessageEvent, tokens []string) {
+func test(e webhook.MessageEvent, _ []string) {
 	services.Reply(e.ReplyToken, "接続OK!")
 }
 
