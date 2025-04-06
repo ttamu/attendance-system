@@ -41,10 +41,10 @@ Password: password
 ## LINE Bot連携
 
 ガイド・打刻  
-<img src="images/line_clock.jpg" alt="LINE Bot通知" width="400" />
+<img src="images/line_clock.JPG" alt="LINE Bot通知" width="400" />
 
 通知例（打刻忘れ）  
-<img src="images/line_register.jpg" alt="LINE Bot通知" width="400" />
+<img src="images/line_register.JPG" alt="LINE Bot通知" width="400" />
 
 ---
 
