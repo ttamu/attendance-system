@@ -56,23 +56,12 @@ func CreateTimeClock(c *gin.Context) {
 		eventTime = *input.Timestamp
 	}
 
-	timeClock := models.TimeClock{
-		EmployeeID: input.EmployeeID,
-		Type:       input.Type,
-		Timestamp:  eventTime,
-	}
-
-	if err := db.DB.Create(&timeClock).Error; err != nil {
+	timeClock, err := services.RecordTimeClock(input.EmployeeID, input.Type, eventTime)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	day := eventTime.In(time.Local).Truncate(24 * time.Hour)
-	if err := services.UpsertWorkRecord(input.EmployeeID, day); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
+	
 	if input.Notify && input.Type == models.ClockIn {
 		go func(empId uint, h, m int, clockInTime time.Time) {
 			time.Sleep(time.Duration(h)*time.Hour + time.Duration(m)*time.Minute)
