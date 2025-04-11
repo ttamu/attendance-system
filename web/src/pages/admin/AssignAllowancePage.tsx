@@ -84,8 +84,8 @@ const AssignAllowancePage: React.FC = () => {
     };
 
     return (
-        <div className="p-8">
-            <Card className="w-full max-w-xl mx-auto shadow-lg mb-6">
+        <div className="container mx-auto px-4 py-4 space-y-6">
+            <Card className="w-full shadow-lg mb-6">
                 <CardHeader className="border-b">
                     <CardTitle className="text-xl font-bold text-gray-900">従業員への手当割り当て</CardTitle>
                 </CardHeader>
@@ -179,7 +179,7 @@ const AssignAllowancePage: React.FC = () => {
                 </CardContent>
             </Card>
 
-            <Card className="w-full max-w-xl mx-auto shadow-lg">
+            <Card className="w-full shadow-lg">
                 <CardHeader className="border-b">
                     <CardTitle className="text-xl font-bold text-gray-900">付与済み手当一覧</CardTitle>
                 </CardHeader>
