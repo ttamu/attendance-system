@@ -60,51 +60,54 @@ const EmployeeDetailPage: React.FC = () => {
     if (!employee) return <div className="text-center mt-8">Not Found</div>;
 
     return (
-        <Card className="max-w-4xl mx-auto shadow-md bg-white">
-            <CardHeader className="flex flex-row items-center gap-2 border-b pb-4">
-                <BadgeInfo className="w-5 h-5 text-blue-600"/>
-                <CardTitle className="text-2xl font-bold text-gray-800">
-                    {employee.name}さんの詳細
-                </CardTitle>
-            </CardHeader>
+        <div className="container mx-auto px-4 py-4">
+            <Card className="w-full shadow-md bg-white">
+                <CardHeader className="flex flex-row items-center gap-2 border-b pb-4">
+                    <BadgeInfo className="w-5 h-5 text-blue-600"/>
+                    <CardTitle className="text-2xl font-bold text-gray-800">
+                        {employee.name}さんの詳細
+                    </CardTitle>
+                </CardHeader>
 
-            <CardContent className="space-y-8 pt-4">
-                {/* 年・月の選択 */}
-                <section>
-                    <DateSelector year={year} month={month} onChange={handleDateChange}/>
-                </section>
+                <CardContent className="space-y-8 pt-4">
+                    {/* 年・月の選択 */}
+                    <section>
+                        <DateSelector year={year} month={month} onChange={handleDateChange}/>
+                    </section>
 
-                {/* 給与計算 */}
-                <section>
-                    <div className="flex items-center gap-2 mb-2">
-                        <Wallet className="w-5 h-5 text-blue-600"/>
-                        <h2 className="text-xl font-semibold text-gray-800">給与計算結果</h2>
-                    </div>
-                    <PayrollDisplay employeeId={Number(id)} year={year} month={month}/>
-                </section>
+                    {/* 給与計算 */}
+                    <section>
+                        <div className="flex items-center gap-2 mb-2">
+                            <Wallet className="w-5 h-5 text-blue-600"/>
+                            <h2 className="text-xl font-semibold text-gray-800">給与計算結果</h2>
+                        </div>
+                        <PayrollDisplay employeeId={Number(id)} year={year} month={month}/>
+                    </section>
 
-                {/* 打刻一覧 */}
-                <section>
-                    <div className="flex items-center gap-2 mb-2">
-                        <ClipboardList className="w-5 h-5 text-blue-600"/>
-                        <h2 className="text-xl font-semibold text-gray-800">打刻一覧</h2>
-                    </div>
-                    <TimeClockList timeClocks={timeClocks}/>
-                </section>
+                    {/* 打刻一覧 */}
+                    <section>
+                        <div className="flex items-center gap-2 mb-2">
+                            <ClipboardList className="w-5 h-5 text-blue-600"/>
+                            <h2 className="text-xl font-semibold text-gray-800">打刻一覧</h2>
+                        </div>
+                        <TimeClockList timeClocks={timeClocks}/>
+                    </section>
 
-                {/* 打刻登録 */}
-                <section>
-                    <div className="flex items-center gap-2 mb-2">
-                        <CalendarCheck2 className="w-5 h-5 text-blue-600"/>
-                        <h2 className="text-xl font-semibold text-gray-800">打刻登録</h2>
-                    </div>
-                    <TimeClockForm employeeId={Number(id)}
-                                   onTimeClockAdded={handleTimeClockAdded}
-                                   isLineLinked={employee.line_linked}
-                    />
-                </section>
-            </CardContent>
-        </Card>
+                    {/* 打刻登録 */}
+                    <section>
+                        <div className="flex items-center gap-2 mb-2">
+                            <CalendarCheck2 className="w-5 h-5 text-blue-600"/>
+                            <h2 className="text-xl font-semibold text-gray-800">打刻登録</h2>
+                        </div>
+                        <TimeClockForm
+                            employeeId={Number(id)}
+                            onTimeClockAdded={handleTimeClockAdded}
+                            isLineLinked={employee.line_linked}
+                        />
+                    </section>
+                </CardContent>
+            </Card>
+        </div>
     );
 };
 
