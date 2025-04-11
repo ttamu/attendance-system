@@ -31,34 +31,38 @@ const EmployeeList: React.FC = () => {
     if (error) return <p className="text-center text-red-600 py-4">{error}</p>;
 
     return (
-        <Card className="max-w-4xl mx-auto shadow-md rounded-xl bg-white">
-            <CardHeader className="flex flex-row items-center gap-2 border-b pb-4">
-                <Users className="w-6 h-6 text-blue-600"/>
-                <CardTitle className="text-2xl font-bold text-left text-gray-800">従業員一覧</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-                <Table className="w-full">
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="text-left px-4 py-2">ID</TableHead>
-                            <TableHead className="text-left px-4 py-2">名前</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {employees.map((emp) => (
-                            <TableRow key={emp.id} className="hover:bg-blue-50 transition-colors duration-200">
-                                <TableCell className="text-left px-4 py-2 font-medium">{emp.id}</TableCell>
-                                <TableCell className="text-left px-4 py-2">
-                                    <Link to={`/employees/${emp.id}`} className="text-blue-600 hover:underline">
-                                        {emp.name}
-                                    </Link>
-                                </TableCell>
+        <div className="container mx-auto px-4 py-4">
+            <Card className="w-full shadow-md rounded-xl bg-white">
+                <CardHeader className="flex flex-row items-center gap-2 border-b pb-4">
+                    <Users className="w-6 h-6 text-blue-600"/>
+                    <CardTitle className="text-2xl font-bold text-left text-gray-800">
+                        従業員一覧
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                    <Table className="w-full">
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="text-left px-4 py-2">ID</TableHead>
+                                <TableHead className="text-left px-4 py-2">名前</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </CardContent>
-        </Card>
+                        </TableHeader>
+                        <TableBody>
+                            {employees.map((emp) => (
+                                <TableRow key={emp.id} className="hover:bg-blue-50 transition-colors duration-200">
+                                    <TableCell className="text-left px-4 py-2 font-medium">{emp.id}</TableCell>
+                                    <TableCell className="text-left px-4 py-2">
+                                        <Link to={`/employees/${emp.id}`} className="text-blue-600 hover:underline">
+                                            {emp.name}
+                                        </Link>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </div>
     );
 };
 
