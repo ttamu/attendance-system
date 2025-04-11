@@ -36,8 +36,8 @@ export default function AllowanceTypesPage() {
     const del = (id: number) => deleteAllowanceType(id).then(reload)
 
     return (
-        <div className="p-8 flex flex-col gap-6 items-center">
-            <Card className="w-full max-w-xl shadow-lg">
+        <div className="container mx-auto px-4 py-4 space-y-6">
+            <Card className="w-full shadow-lg">
                 <CardHeader className="border-b">
                     <CardTitle className="text-xl font-bold text-gray-900">
                         {edit ? '手当タイプの編集' : '新規手当タイプ追加'}
@@ -110,7 +110,7 @@ export default function AllowanceTypesPage() {
                 </CardContent>
             </Card>
 
-            <Card className="w-full max-w-xl shadow-lg">
+            <Card className="w-full shadow-lg">
                 <CardHeader className="border-b">
                     <CardTitle className="text-xl font-bold text-gray-900">手当タイプ一覧</CardTitle>
                 </CardHeader>

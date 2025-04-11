@@ -65,69 +65,71 @@ const ClockRequestList: React.FC = () => {
     if (error) return <p className="text-center text-red-600 py-4">{error}</p>;
 
     return (
-        <Card className="mt-8">
-            <CardHeader>
-                <CardTitle>打刻修正申請一覧</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Table className="w-full">
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="px-4 py-2">従業員名</TableHead>
-                            <TableHead className="px-4 py-2">申請日</TableHead>
-                            <TableHead className="px-4 py-2">種別</TableHead>
-                            <TableHead className="px-4 py-2">修正時刻</TableHead>
-                            <TableHead className="px-4 py-2">理由</TableHead>
-                            <TableHead className="px-4 py-2 text-center">ステータス</TableHead>
-                            <TableHead className="px-4 py-2 text-center">操作</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {requests?.length === 0 ? (
+        <div className="container mx-auto px-4 py-4">
+            <Card className="w-full shadow-lg">
+                <CardHeader>
+                    <CardTitle>打刻修正申請一覧</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table className="w-full">
+                        <TableHeader>
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center py-6 text-gray-500">
-                                    申請はまだありません。
-                                </TableCell>
+                                <TableHead className="px-4 py-2">従業員名</TableHead>
+                                <TableHead className="px-4 py-2">申請日</TableHead>
+                                <TableHead className="px-4 py-2">種別</TableHead>
+                                <TableHead className="px-4 py-2">修正時刻</TableHead>
+                                <TableHead className="px-4 py-2">理由</TableHead>
+                                <TableHead className="px-4 py-2 text-center">ステータス</TableHead>
+                                <TableHead className="px-4 py-2 text-center">操作</TableHead>
                             </TableRow>
-                        ) : (
-                            requests?.map((req) => (
-                                <TableRow key={req.id}>
-                                    <TableCell className="px-4 py-2">{req.employee_name}</TableCell>
-                                    <TableCell className="px-4 py-2">{formatDate(req.created_at)}</TableCell>
-                                    <TableCell className="px-4 py-2">{typeLabels[req.type]}</TableCell>
-                                    <TableCell className="px-4 py-2">{formatDate(req.time)}</TableCell>
-                                    <TableCell className="px-4 py-2">{req.reason || "―"}</TableCell>
-                                    <TableCell className="px-4 py-2 text-center align-middle">
-                                        {statusIcons[req.status]}
-                                    </TableCell>
-                                    <TableCell className="px-4 py-2 text-center align-middle">
-                                        {req.status === "pending" && (
-                                            <>
-                                                <Button
-                                                    size="icon"
-                                                    className="mr-2 bg-green-100 hover:bg-green-200 text-green-600"
-                                                    onClick={() => handleApprove(req.id)}
-                                                >
-                                                    <CheckCircle className="w-4 h-4"/>
-                                                </Button>
-                                                <Button
-                                                    size="icon"
-                                                    className="bg-red-100 hover:bg-red-200 text-red-600"
-                                                    onClick={() => handleReject(req.id)}
-                                                >
-                                                    <XCircle className="w-4 h-4"/>
-                                                </Button>
-                                            </>
-                                        )}
+                        </TableHeader>
+                        <TableBody>
+                            {requests?.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={7} className="text-center py-6 text-gray-500">
+                                        申請はまだありません。
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
+                            ) : (
+                                requests?.map((req) => (
+                                    <TableRow key={req.id}>
+                                        <TableCell className="px-4 py-2">{req.employee_name}</TableCell>
+                                        <TableCell className="px-4 py-2">{formatDate(req.created_at)}</TableCell>
+                                        <TableCell className="px-4 py-2">{typeLabels[req.type]}</TableCell>
+                                        <TableCell className="px-4 py-2">{formatDate(req.time)}</TableCell>
+                                        <TableCell className="px-4 py-2">{req.reason || "―"}</TableCell>
+                                        <TableCell className="px-4 py-2 text-center align-middle">
+                                            {statusIcons[req.status]}
+                                        </TableCell>
+                                        <TableCell className="px-4 py-2 text-center align-middle">
+                                            {req.status === "pending" && (
+                                                <>
+                                                    <Button
+                                                        size="icon"
+                                                        className="mr-2 bg-green-100 hover:bg-green-200 text-green-600"
+                                                        onClick={() => handleApprove(req.id)}
+                                                    >
+                                                        <CheckCircle className="w-4 h-4"/>
+                                                    </Button>
+                                                    <Button
+                                                        size="icon"
+                                                        className="bg-red-100 hover:bg-red-200 text-red-600"
+                                                        onClick={() => handleReject(req.id)}
+                                                    >
+                                                        <XCircle className="w-4 h-4"/>
+                                                    </Button>
+                                                </>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
 
-                </Table>
-            </CardContent>
-        </Card>
+                    </Table>
+                </CardContent>
+            </Card>
+        </div>
     );
 };
 
