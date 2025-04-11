@@ -8,7 +8,7 @@ type AllowanceType struct {
 	Name           string    `gorm:"not null" json:"name"`
 	Type           string    `gorm:"not null;check:type IN ('commission','fixed')" json:"type"`
 	Description    string    `json:"description"`
-	CommissionRate float64   `json:"commission_rate"`
+	CommissionRate *float64  `json:"commission_rate,omitempty"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }

@@ -7,7 +7,7 @@ type EmployeeAllowance struct {
 	EmployeeID      uint          `json:"employee_id"`
 	AllowanceTypeID uint          `json:"allowance_type_id"`
 	Amount          int           `json:"amount"`
-	CommissionRate  float64       `json:"commission_rate,omitempty"`
+	CommissionRate  *float64      `json:"commission_rate,omitempty"`
 	Year            int           `json:"year"`
 	Month           int           `json:"month"`
 	CreatedAt       time.Time     `json:"created_at"`

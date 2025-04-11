@@ -10,15 +10,15 @@ import (
 )
 
 type EmployeeAllowanceResponse struct {
-	ID                uint    `json:"id"`
-	EmployeeID        uint    `json:"employee_id"`
-	AllowanceTypeID   uint    `json:"allowance_type_id"`
-	Amount            float64 `json:"amount"`
-	CommissionRate    float64 `json:"commission_rate"`
-	Year              int     `json:"year"`
-	Month             int     `json:"month"`
-	EmployeeName      string  `json:"employee_name"`
-	AllowanceTypeName string  `json:"allowance_type_name"`
+	ID                uint     `json:"id"`
+	EmployeeID        uint     `json:"employee_id"`
+	AllowanceTypeID   uint     `json:"allowance_type_id"`
+	Amount            int      `json:"amount"`
+	CommissionRate    *float64 `json:"commission_rate,omitempty"`
+	Year              int      `json:"year"`
+	Month             int      `json:"month"`
+	EmployeeName      string   `json:"employee_name"`
+	AllowanceTypeName string   `json:"allowance_type_name"`
 }
 
 func CreateEmployeeAllowance(c *gin.Context) {
