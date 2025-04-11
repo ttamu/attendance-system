@@ -19,4 +19,6 @@ export interface EmployeeAllowance {
     month: number;
     created_at?: string;
     updated_at?: string;
+    employee_name?: string;
+    allowance_type_name?: string;
 }

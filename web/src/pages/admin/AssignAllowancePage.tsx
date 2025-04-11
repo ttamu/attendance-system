@@ -13,7 +13,7 @@ import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
 import {Label} from '@/components/ui/label';
 import {Trash2} from 'lucide-react';
-
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
 
 const AssignAllowancePage: React.FC = () => {
     const [employees, setEmployees] = useState<Employee[]>([]);
@@ -85,7 +85,8 @@ const AssignAllowancePage: React.FC = () => {
 
     return (
         <div className="container mx-auto px-4 py-4 space-y-6">
-            <Card className="w-full shadow-lg mb-6">
+            {/* 割り当て登録フォーム */}
+            <Card className="w-full shadow-lg">
                 <CardHeader className="border-b">
                     <CardTitle className="text-xl font-bold text-gray-900">従業員への手当割り当て</CardTitle>
                 </CardHeader>
@@ -179,39 +180,58 @@ const AssignAllowancePage: React.FC = () => {
                 </CardContent>
             </Card>
 
+            {/* 付与済み手当一覧のテーブル表示 */}
             <Card className="w-full shadow-lg">
                 <CardHeader className="border-b">
                     <CardTitle className="text-xl font-bold text-gray-900">付与済み手当一覧</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {assignments.length === 0 ? (
-                        <p className="text-gray-600">まだ手当が付与されていません</p>
-                    ) : (
-                        <ul className="space-y-4">
-                            {assignments.map((a) => (
-                                <li
-                                    key={a.id}
-                                    className="border p-4 rounded flex justify-between items-center"
-                                >
-                                    <div>
-                                        <strong className="text-gray-900">
-                                            従業員ID: {a.employee_id}
-                                        </strong>
-                                        {" - "}
-                                        手当タイプID: {a.allowance_type_id} <br/>
-                                        金額: {a.amount} 円 歩合率: {a.commission_rate} {a.year}/{a.month}
-                                    </div>
-                                    <Button
-                                        variant="link"
-                                        onClick={() => handleDelete(a.id!)}
-                                        className="flex items-center gap-1 text-black"
-                                    >
-                                        <Trash2 className="w-4 h-4"/> 削除
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    <Table className="w-full">
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="px-4 py-2">従業員名</TableHead>
+                                <TableHead className="px-4 py-2">手当タイプ</TableHead>
+                                <TableHead className="px-4 py-2">金額</TableHead>
+                                <TableHead className="px-4 py-2">歩合率</TableHead>
+                                <TableHead className="px-4 py-2">年月</TableHead>
+                                <TableHead className="px-4 py-2 text-center">操作</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {assignments.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center py-6 text-gray-500">
+                                        まだ手当が付与されていません
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                assignments.map(a => (
+                                    <TableRow key={a.id}>
+                                        <TableCell className="px-4 py-2">
+                                            {employees.find(emp => emp.id === a.employee_id)?.name ?? a.employee_id}
+                                        </TableCell>
+                                        <TableCell className="px-4 py-2">
+                                            {allowanceTypes.find(at => at.id === a.allowance_type_id)?.name ?? a.allowance_type_id}
+                                        </TableCell>
+                                        <TableCell className="px-4 py-2">{a.amount} 円</TableCell>
+                                        <TableCell className="px-4 py-2">{a.commission_rate}</TableCell>
+                                        <TableCell className="px-4 py-2">
+                                            {a.year}年{a.month}月
+                                        </TableCell>
+                                        <TableCell className="px-4 py-2 text-center">
+                                            <Button
+                                                variant="link"
+                                                onClick={() => handleDelete(a.id!)}
+                                                className="flex items-center gap-1 text-black"
+                                            >
+                                                <Trash2 className="w-4 h-4"/> 削除
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
         </div>
