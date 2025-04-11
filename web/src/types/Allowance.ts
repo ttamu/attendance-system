@@ -21,4 +21,5 @@ export interface EmployeeAllowance {
     updated_at?: string;
     employee_name?: string;
     allowance_type_name?: string;
+    allowance_type?: string;
 }

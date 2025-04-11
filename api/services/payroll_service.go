@@ -67,9 +67,13 @@ func calculateTotalAllowance(allowances []models.EmployeeAllowance) float64 {
 		switch ea.AllowanceType.Type {
 		case "commission":
 			// 従業員ごとに設定された割合があればそれを使用、なければデフォルトの値を使用
-			rate := ea.CommissionRate
-			if rate == 0 {
-				rate = ea.AllowanceType.CommissionRate
+			var rate float64
+			if ea.CommissionRate != nil {
+				rate = *ea.CommissionRate
+			} else if ea.AllowanceType.CommissionRate != nil {
+				rate = *ea.AllowanceType.CommissionRate
+			} else {
+				rate = 0
 			}
 			total += float64(ea.Amount) * rate
 		case "fixed":

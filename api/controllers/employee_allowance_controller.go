@@ -19,6 +19,7 @@ type EmployeeAllowanceResponse struct {
 	Month             int      `json:"month"`
 	EmployeeName      string   `json:"employee_name"`
 	AllowanceTypeName string   `json:"allowance_type_name"`
+	AllowanceType     string   `json:"allowance_type"` // "fixed" or "commission"
 }
 
 func CreateEmployeeAllowance(c *gin.Context) {
@@ -51,7 +52,7 @@ func CreateEmployeeAllowance(c *gin.Context) {
 
 	var response EmployeeAllowanceResponse
 	if err := db.DB.Table("employee_allowances").
-		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name").
+		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name, allowance_types.type as allowance_type").
 		Joins("JOIN employees ON employee_allowances.employee_id = employees.id").
 		Joins("JOIN allowance_types ON employee_allowances.allowance_type_id = allowance_types.id").
 		Where("employee_allowances.id = ?", ea.ID).
@@ -72,7 +73,7 @@ func GetEmployeeAllowances(c *gin.Context) {
 
 	var responses []EmployeeAllowanceResponse
 	if err := db.DB.Table("employee_allowances").
-		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name").
+		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name, allowance_types.type as allowance_type").
 		Joins("JOIN employees ON employee_allowances.employee_id = employees.id").
 		Joins("JOIN allowance_types ON employee_allowances.allowance_type_id = allowance_types.id").
 		Where("employees.company_id = ?", companyID).
@@ -84,7 +85,6 @@ func GetEmployeeAllowances(c *gin.Context) {
 	if responses == nil {
 		responses = []EmployeeAllowanceResponse{}
 	}
-
 	c.JSON(http.StatusOK, responses)
 }
 
@@ -98,7 +98,7 @@ func GetEmployeeAllowance(c *gin.Context) {
 
 	var response EmployeeAllowanceResponse
 	if err := db.DB.Table("employee_allowances").
-		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name").
+		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name, allowance_types.type as allowance_type").
 		Joins("JOIN employees ON employee_allowances.employee_id = employees.id").
 		Joins("JOIN allowance_types ON employee_allowances.allowance_type_id = allowance_types.id").
 		Where("employee_allowances.id = ? AND employees.company_id = ?", id, companyID).
@@ -156,7 +156,7 @@ func UpdateEmployeeAllowance(c *gin.Context) {
 
 	var response EmployeeAllowanceResponse
 	if err := db.DB.Table("employee_allowances").
-		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name").
+		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name, allowance_types.type as allowance_type").
 		Joins("JOIN employees ON employee_allowances.employee_id = employees.id").
 		Joins("JOIN allowance_types ON employee_allowances.allowance_type_id = allowance_types.id").
 		Where("employee_allowances.id = ?", ea.ID).
