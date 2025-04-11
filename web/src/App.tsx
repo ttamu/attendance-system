@@ -16,7 +16,7 @@ const App: React.FC = () => {
         <UserProvider>
             <BrowserRouter>
                 <Header/>
-                <main className="p-8 bg-gray-50 min-h-screen">
+                <main className="p-4 bg-gray-50 min-h-screen">
                     <Routes>
                         <Route path="/login" element={<Login/>}/>
 
