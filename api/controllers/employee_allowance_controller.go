@@ -1,12 +1,25 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/t2469/attendance-system.git/db"
 	"github.com/t2469/attendance-system.git/helpers"
 	"github.com/t2469/attendance-system.git/models"
-	"net/http"
 )
+
+type EmployeeAllowanceResponse struct {
+	ID                uint    `json:"id"`
+	EmployeeID        uint    `json:"employee_id"`
+	AllowanceTypeID   uint    `json:"allowance_type_id"`
+	Amount            float64 `json:"amount"`
+	CommissionRate    float64 `json:"commission_rate"`
+	Year              int     `json:"year"`
+	Month             int     `json:"month"`
+	EmployeeName      string  `json:"employee_name"`
+	AllowanceTypeName string  `json:"allowance_type_name"`
+}
 
 func CreateEmployeeAllowance(c *gin.Context) {
 	var ea models.EmployeeAllowance
@@ -36,7 +49,18 @@ func CreateEmployeeAllowance(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, ea)
+	var response EmployeeAllowanceResponse
+	if err := db.DB.Table("employee_allowances").
+		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name").
+		Joins("JOIN employees ON employee_allowances.employee_id = employees.id").
+		Joins("JOIN allowance_types ON employee_allowances.allowance_type_id = allowance_types.id").
+		Where("employee_allowances.id = ?", ea.ID).
+		Scan(&response).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, response)
 }
 
 func GetEmployeeAllowances(c *gin.Context) {
@@ -46,16 +70,22 @@ func GetEmployeeAllowances(c *gin.Context) {
 		return
 	}
 
-	var eas []models.EmployeeAllowance
-	if err := db.DB.
+	var responses []EmployeeAllowanceResponse
+	if err := db.DB.Table("employee_allowances").
+		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name").
 		Joins("JOIN employees ON employee_allowances.employee_id = employees.id").
+		Joins("JOIN allowance_types ON employee_allowances.allowance_type_id = allowance_types.id").
 		Where("employees.company_id = ?", companyID).
-		Find(&eas).Error; err != nil {
+		Scan(&responses).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, eas)
+	if responses == nil {
+		responses = []EmployeeAllowanceResponse{}
+	}
+
+	c.JSON(http.StatusOK, responses)
 }
 
 func GetEmployeeAllowance(c *gin.Context) {
@@ -66,23 +96,18 @@ func GetEmployeeAllowance(c *gin.Context) {
 		return
 	}
 
-	var ea models.EmployeeAllowance
-	if err := db.DB.First(&ea, id).Error; err != nil {
+	var response EmployeeAllowanceResponse
+	if err := db.DB.Table("employee_allowances").
+		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name").
+		Joins("JOIN employees ON employee_allowances.employee_id = employees.id").
+		Joins("JOIN allowance_types ON employee_allowances.allowance_type_id = allowance_types.id").
+		Where("employee_allowances.id = ? AND employees.company_id = ?", id, companyID).
+		Scan(&response).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Employee allowance not found"})
 		return
 	}
 
-	var emp models.Employee
-	if err := db.DB.First(&emp, ea.EmployeeID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Employee not found"})
-		return
-	}
-	if emp.CompanyID != companyID {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Not allowed to access this allowance"})
-		return
-	}
-
-	c.JSON(http.StatusOK, ea)
+	c.JSON(http.StatusOK, response)
 }
 
 func UpdateEmployeeAllowance(c *gin.Context) {
@@ -129,7 +154,18 @@ func UpdateEmployeeAllowance(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, ea)
+	var response EmployeeAllowanceResponse
+	if err := db.DB.Table("employee_allowances").
+		Select("employee_allowances.*, employees.name as employee_name, allowance_types.name as allowance_type_name").
+		Joins("JOIN employees ON employee_allowances.employee_id = employees.id").
+		Joins("JOIN allowance_types ON employee_allowances.allowance_type_id = allowance_types.id").
+		Where("employee_allowances.id = ?", ea.ID).
+		Scan(&response).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func DeleteEmployeeAllowance(c *gin.Context) {
