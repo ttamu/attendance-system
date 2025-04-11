@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {TimeClock} from "@/types/TimeClock";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Card, CardContent} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Button} from "@/components/ui/button";
 import ClockRequestForm from "@/components/ClockRequestForm";
@@ -41,9 +41,7 @@ const TimeClockList: React.FC<TimeClockListProps> = ({timeClocks, onRefresh}) =>
                 reason: data.reason,
             });
             setEditingClockIndex(null);
-            if (onRefresh) {
-                onRefresh();
-            }
+            if (onRefresh) onRefresh();
         } catch (error) {
             console.error("打刻修正申請の送信に失敗しました:", error);
         }
@@ -51,9 +49,6 @@ const TimeClockList: React.FC<TimeClockListProps> = ({timeClocks, onRefresh}) =>
 
     return (
         <Card className="mt-4">
-            <CardHeader>
-                <CardTitle>打刻一覧</CardTitle>
-            </CardHeader>
             <CardContent>
                 <Table className="rounded-xl overflow-hidden">
                     <TableHeader>
@@ -72,9 +67,7 @@ const TimeClockList: React.FC<TimeClockListProps> = ({timeClocks, onRefresh}) =>
                                     </TableCell>
                                     <TableCell className="px-4 py-2">{clock.timestamp}</TableCell>
                                     <TableCell className="px-4 py-2">
-                                        <Button size="sm" onClick={() => handleStartEditing(idx)}>
-                                            修正申請
-                                        </Button>
+                                        <Button size="sm" onClick={() => handleStartEditing(idx)}>修正申請</Button>
                                     </TableCell>
                                 </TableRow>
                                 {editingClockIndex === idx && (

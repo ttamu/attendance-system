@@ -43,9 +43,7 @@ const TimeClockForm: React.FC<TimeClockFormProps> = ({employeeId, onTimeClockAdd
 
     return (
         <Card className="bg-white shadow-sm text-gray-800">
-            <CardContent className="p-4 space-y-4">
-                <h3 className="text-lg font-semibold">打刻登録</h3>
-
+            <CardContent>
                 {success && (
                     <p className="text-green-600 bg-green-50 border border-green-200 p-2 rounded">登録に成功しました！</p>
                 )}
