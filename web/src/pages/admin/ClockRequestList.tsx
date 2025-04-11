@@ -67,8 +67,8 @@ const ClockRequestList: React.FC = () => {
     return (
         <div className="container mx-auto px-4 py-4">
             <Card className="w-full shadow-lg">
-                <CardHeader>
-                    <CardTitle>打刻修正申請一覧</CardTitle>
+                <CardHeader className="border-b">
+                    <CardTitle className="text-xl font-bold text-gray-900">打刻修正申請一覧</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Table className="w-full">
