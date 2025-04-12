@@ -13,116 +13,144 @@ import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
 import {Label} from '@/components/ui/label';
 import {Trash2} from 'lucide-react';
-
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
 
 const AssignAllowancePage: React.FC = () => {
-    const [employees, setEmployees] = useState<Employee[]>([]);
-    const [allowanceTypes, setAllowanceTypes] = useState<AllowanceType[]>([]);
-    const [assignment, setAssignment] = useState<EmployeeAllowance>({
-        employee_id: 0,
-        allowance_type_id: 0,
-        amount: 0,
-        commission_rate: 0,
+    const [emps, setEmps] = useState<Employee[]>([]);
+    const [types, setTypes] = useState<AllowanceType[]>([]);
+    const [asgs, setAsgs] = useState<EmployeeAllowance[]>([]);
+    const [form, setForm] = useState<Partial<EmployeeAllowance>>({
+        employee_id: undefined,
+        allowance_type_id: undefined,
+        amount: undefined,
+        commission_rate: undefined,
         year: new Date().getFullYear(),
         month: new Date().getMonth() + 1,
     });
-    const [assignments, setAssignments] = useState<EmployeeAllowance[]>([]);
+
+    const selType = types.find(t => t.id === form.allowance_type_id);
 
     const loadData = async () => {
         try {
-            const [emps, ats] = await Promise.all([
+            const [e, t] = await Promise.all([
                 fetchEmployees<Employee[]>(),
                 fetchAllowanceTypes<AllowanceType[]>(),
             ]);
-            setEmployees(emps);
-            setAllowanceTypes(ats);
-        } catch (error) {
-            console.error('データの取得に失敗:', error);
+            setEmps(e || []);
+            setTypes(t || []);
+        } catch (err) {
+            console.error('データ取得エラー:', err);
         }
     };
 
-    const loadAssignments = async () => {
+    const loadAsgs = async () => {
         try {
             const data = await fetchEmployeeAllowances<EmployeeAllowance[]>();
-            setAssignments(data);
-        } catch (error) {
-            console.error('手当割り当ての取得に失敗:', error);
+            setAsgs(data || []);
+        } catch (err) {
+            console.error('割り当て取得エラー:', err);
+            setAsgs([]);
         }
     };
 
     useEffect(() => {
         loadData();
-        loadAssignments();
+        loadAsgs();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (
+            form.employee_id === undefined ||
+            form.allowance_type_id === undefined ||
+            form.amount === undefined ||
+            form.year === undefined ||
+            form.month === undefined
+        ) {
+            alert('必須項目をすべて入力してください');
+            return;
+        }
         try {
-            await createEmployeeAllowance<EmployeeAllowance>(assignment);
-            setAssignment({
-                employee_id: 0,
-                allowance_type_id: 0,
-                amount: 0,
-                commission_rate: 0,
+            const sendData: EmployeeAllowance = {
+                employee_id: Number(form.employee_id),
+                allowance_type_id: Number(form.allowance_type_id),
+                amount: Number(form.amount),
+                commission_rate:
+                    selType?.type === 'commission'
+                        ? Number(form.commission_rate) / 100
+                        : 0,
+                year: Number(form.year),
+                month: Number(form.month),
+            };
+            await createEmployeeAllowance<EmployeeAllowance>(sendData);
+            alert('登録しました');
+            setForm({
+                employee_id: undefined,
+                allowance_type_id: undefined,
+                amount: undefined,
+                commission_rate: undefined,
                 year: new Date().getFullYear(),
                 month: new Date().getMonth() + 1,
             });
-            alert('手当割り当てが登録されました');
-            loadAssignments();
-        } catch (error) {
-            console.error('手当割り当ての登録に失敗:', error);
+            loadAsgs();
+        } catch (err) {
+            console.error('登録失敗:', err);
         }
     };
 
     const handleDelete = async (id: number) => {
         try {
             await deleteEmployeeAllowance(id);
-            loadAssignments();
-        } catch (error) {
-            console.error('手当割り当ての削除に失敗:', error);
+            loadAsgs();
+        } catch (err) {
+            console.error('削除失敗:', err);
         }
     };
 
     return (
         <div className="container mx-auto px-4 py-4 space-y-6">
-            <Card className="w-full shadow-lg mb-6">
+            {/* 登録フォーム */}
+            <Card className="w-full shadow-lg">
                 <CardHeader className="border-b">
-                    <CardTitle className="text-xl font-bold text-gray-900">従業員への手当割り当て</CardTitle>
+                    <CardTitle className="text-xl font-bold text-gray-900">
+                        従業員への手当割り当て
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="mb-6 space-y-4">
                         <div>
                             <Label className="mb-1 text-gray-800">従業員</Label>
                             <select
-                                value={assignment.employee_id}
-                                onChange={(e) =>
-                                    setAssignment({...assignment, employee_id: Number(e.target.value)})
+                                value={form.employee_id ?? ""}
+                                onChange={e =>
+                                    setForm({...form, employee_id: e.target.value ? Number(e.target.value) : undefined})
                                 }
                                 className="border p-2 w-full rounded"
                                 required
                             >
                                 <option value="">選択してください</option>
-                                {employees.map((emp) => (
-                                    <option key={emp.id} value={emp.id}>
-                                        {emp.name}
-                                    </option>
+                                {emps.map(emp => (
+                                    <option key={emp.id} value={emp.id}>{emp.name}</option>
                                 ))}
                             </select>
                         </div>
                         <div>
                             <Label className="mb-1 text-gray-800">手当タイプ</Label>
                             <select
-                                value={assignment.allowance_type_id}
-                                onChange={(e) =>
-                                    setAssignment({...assignment, allowance_type_id: Number(e.target.value)})
+                                value={form.allowance_type_id ?? ""}
+                                onChange={e =>
+                                    setForm({
+                                        ...form,
+                                        allowance_type_id: e.target.value ? Number(e.target.value) : undefined
+                                    })
                                 }
                                 className="border p-2 w-full rounded"
                                 required
                             >
                                 <option value="">選択してください</option>
-                                {allowanceTypes.map((at) => (
-                                    <option key={at.id} value={at.id}>
-                                        {at.name}
+                                {types.map(t => (
+                                    <option key={t.id} value={t.id}>
+                                        {t.name} ({t.type === 'commission' ? '歩合制' : '固定'})
                                     </option>
                                 ))}
                             </select>
@@ -131,20 +159,27 @@ const AssignAllowancePage: React.FC = () => {
                             <Label className="mb-1 text-gray-800">金額</Label>
                             <Input
                                 type="number"
-                                value={assignment.amount}
-                                onChange={(e) =>
-                                    setAssignment({...assignment, amount: Number(e.target.value)})
+                                value={form.amount ?? ""}
+                                onChange={e =>
+                                    setForm({...form, amount: e.target.value ? Number(e.target.value) : undefined})
                                 }
                                 required
                             />
                         </div>
-                        <div>
-                            <Label className="mb-1 text-gray-800">歩合率</Label>
+                        <div
+                            className={`overflow-hidden transition-all duration-300 ${
+                                selType?.type === 'commission' ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0'
+                            }`}
+                        >
+                            <Label className="mb-1 text-gray-800">歩合率（%）</Label>
                             <Input
                                 type="number"
-                                value={assignment.commission_rate}
-                                onChange={(e) =>
-                                    setAssignment({...assignment, commission_rate: Number(e.target.value)})
+                                value={form.commission_rate ?? ""}
+                                onChange={e =>
+                                    setForm({
+                                        ...form,
+                                        commission_rate: e.target.value ? Number(e.target.value) : undefined
+                                    })
                                 }
                             />
                         </div>
@@ -153,9 +188,9 @@ const AssignAllowancePage: React.FC = () => {
                                 <Label className="mb-1 text-gray-800">年</Label>
                                 <Input
                                     type="number"
-                                    value={assignment.year}
-                                    onChange={(e) =>
-                                        setAssignment({...assignment, year: Number(e.target.value)})
+                                    value={form.year ?? ""}
+                                    onChange={e =>
+                                        setForm({...form, year: e.target.value ? Number(e.target.value) : undefined})
                                     }
                                     required
                                 />
@@ -164,54 +199,77 @@ const AssignAllowancePage: React.FC = () => {
                                 <Label className="mb-1 text-gray-800">月</Label>
                                 <Input
                                     type="number"
-                                    value={assignment.month}
-                                    onChange={(e) =>
-                                        setAssignment({...assignment, month: Number(e.target.value)})
+                                    value={form.month ?? ""}
+                                    onChange={e =>
+                                        setForm({...form, month: e.target.value ? Number(e.target.value) : undefined})
                                     }
                                     required
                                 />
                             </div>
                         </div>
                         <Button type="submit" className="bg-black text-white w-full">
-                            割り当て登録
+                            登録
                         </Button>
                     </form>
                 </CardContent>
             </Card>
 
+            {/* 一覧表示テーブル */}
             <Card className="w-full shadow-lg">
                 <CardHeader className="border-b">
-                    <CardTitle className="text-xl font-bold text-gray-900">付与済み手当一覧</CardTitle>
+                    <CardTitle className="text-xl font-bold text-gray-900">
+                        付与済み手当一覧
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {assignments.length === 0 ? (
-                        <p className="text-gray-600">まだ手当が付与されていません</p>
-                    ) : (
-                        <ul className="space-y-4">
-                            {assignments.map((a) => (
-                                <li
-                                    key={a.id}
-                                    className="border p-4 rounded flex justify-between items-center"
-                                >
-                                    <div>
-                                        <strong className="text-gray-900">
-                                            従業員ID: {a.employee_id}
-                                        </strong>
-                                        {" - "}
-                                        手当タイプID: {a.allowance_type_id} <br/>
-                                        金額: {a.amount} 円 歩合率: {a.commission_rate} {a.year}/{a.month}
-                                    </div>
-                                    <Button
-                                        variant="link"
-                                        onClick={() => handleDelete(a.id!)}
-                                        className="flex items-center gap-1 text-black"
-                                    >
-                                        <Trash2 className="w-4 h-4"/> 削除
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    <Table className="w-full">
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="px-4 py-2">従業員</TableHead>
+                                <TableHead className="px-4 py-2">手当タイプ</TableHead>
+                                <TableHead className="px-4 py-2">金額</TableHead>
+                                <TableHead className="px-4 py-2">歩合率</TableHead>
+                                <TableHead className="px-4 py-2">年月</TableHead>
+                                <TableHead className="px-4 py-2 text-center">操作</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {asgs.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center py-6 text-gray-500">
+                                        まだ割り当てがありません
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                asgs.map(a => (
+                                    <TableRow key={a.id}>
+                                        <TableCell className="px-4 py-2">{a.employee_name || a.employee_id}</TableCell>
+                                        <TableCell className="px-4 py-2">{a.allowance_type_name}</TableCell>
+                                        <TableCell className="px-4 py-2">{a.amount} 円</TableCell>
+                                        <TableCell className="px-4 py-2">
+                                            {a.allowance_type === 'commission'
+                                                ? a.commission_rate !== undefined
+                                                    ? `${a.commission_rate * 100}%`
+                                                    : ""
+                                                : "―"}
+                                        </TableCell>
+                                        <TableCell className="px-4 py-2">{a.year}年{a.month}月</TableCell>
+                                        <TableCell className="px-4 py-2 text-center">
+                                            <div className="flex justify-center items-center space-x-2">
+                                                <Button
+                                                    variant="outline"
+                                                    title="削除"
+                                                    onClick={() => handleDelete(a.id!)}
+                                                    className="p-2 hover:bg-gray-100"
+                                                ><Trash2 className="w-5 h-5"/>
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
         </div>
