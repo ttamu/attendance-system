@@ -41,11 +41,7 @@ const AllowanceTypesPage: React.FC = () => {
                 type: form.type,
                 description: form.description,
                 commission_rate:
-                    selType === 'commission'
-                        ? form.commission_rate !== undefined
-                            ? Number(form.commission_rate) / 100
-                            : 0
-                        : 0,
+                    selType === 'commission' ? form.commission_rate !== undefined ? form.commission_rate : 0 : 0,
             };
             createAllowanceType<AllowanceType>(data).then(() => {
                 setForm({name: '', type: '', description: '', commission_rate: undefined});
@@ -58,7 +54,6 @@ const AllowanceTypesPage: React.FC = () => {
 
     return (
         <div className="container mx-auto px-4 py-4 space-y-6">
-            {/* 登録／編集フォーム */}
             <Card className="w-full shadow-lg">
                 <CardHeader className="border-b">
                     <CardTitle className="text-xl font-bold text-gray-900">
@@ -129,7 +124,7 @@ const AllowanceTypesPage: React.FC = () => {
                                     edit
                                         ? setEdit({
                                             ...edit,
-                                            commission_rate: val ? Number(val) / 100 : 0,
+                                            commission_rate: val ? Number(val) / 100 : undefined,
                                         })
                                         : setForm({
                                             ...form,
@@ -139,10 +134,7 @@ const AllowanceTypesPage: React.FC = () => {
                             />
                         </div>
                         <div className="flex items-center justify-end space-x-2">
-                            <Button
-                                type="submit"
-                                className="bg-black text-white flex items-center gap-1 px-4"
-                            >
+                            <Button type="submit" className="bg-black text-white flex items-center gap-1 px-4">
                                 {edit ? '更新' : '追加'}
                             </Button>
                             {edit && (
@@ -159,12 +151,9 @@ const AllowanceTypesPage: React.FC = () => {
                 </CardContent>
             </Card>
 
-            {/* 一覧表示テーブル */}
             <Card className="w-full shadow-lg">
                 <CardHeader className="border-b">
-                    <CardTitle className="text-xl font-bold text-gray-900">
-                        手当タイプ一覧
-                    </CardTitle>
+                    <CardTitle className="text-xl font-bold text-gray-900">手当タイプ一覧</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Table className="w-full">
@@ -193,11 +182,8 @@ const AllowanceTypesPage: React.FC = () => {
                                         </TableCell>
                                         <TableCell className="px-4 py-2">{at.description}</TableCell>
                                         <TableCell className="px-4 py-2">
-                                            {at.type === 'commission'
-                                                ? `${(at.commission_rate ?? 0) * 100}%`
-                                                : '―'}
+                                            {at.type === 'commission' ? `${(at.commission_rate ?? 0) * 100}%` : '―'}
                                         </TableCell>
-                                        {/* 中央寄せ、横並び */}
                                         <TableCell className="px-4 py-2 text-center">
                                             <div className="flex justify-center items-center space-x-2">
                                                 <Button
