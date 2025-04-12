@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/t2469/attendance-system.git/models"
 	"gorm.io/gorm"
+	"math"
 )
 
 type PensionInsuranceResponse struct {
@@ -21,7 +22,7 @@ type PensionInsuranceResponse struct {
 // CalculatePension は、指定された年・月をもとに年金保険料を計算する関数
 func CalculatePension(db *gorm.DB, employeeID uint, calcYear, calcMonth int) (PensionInsuranceResponse, error) {
 	var employee models.Employee
-	if err := db.Preload("Company").First(&employee, employeeID).Error; err != nil {
+	if err := db.Preload("Company").Preload("Allowances", "year = ? AND month = ?", calcYear, calcMonth).Preload("Allowances.AllowanceType").First(&employee, employeeID).Error; err != nil {
 		return PensionInsuranceResponse{}, err
 	}
 
@@ -31,12 +32,15 @@ func CalculatePension(db *gorm.DB, employeeID uint, calcYear, calcMonth int) (Pe
 		return PensionInsuranceResponse{}, errors.New("prefecture ID not set for employee's company")
 	}
 
+	totalAllowance := calculateTotalAllowance(employee.Allowances)
+	standardMonthlyAmount := employee.MonthlySalary + int(math.Round(totalAllowance))
+
 	var rate models.PensionInsuranceRate
 	err := db.Where(
 		"prefecture_id = ? AND min_monthly_amount <= ? AND max_monthly_amount >= ? "+
 			"AND ((from_year < ? OR (from_year = ? AND from_month <= ?)) "+
 			"AND (to_year > ? OR (to_year = ? AND to_month >= ?)))",
-		prefID, employee.MonthlySalary, employee.MonthlySalary,
+		prefID, standardMonthlyAmount, standardMonthlyAmount,
 		calcYear, calcYear, calcMonth,
 		calcYear, calcYear, calcMonth,
 	).Order("from_year desc, from_month desc").

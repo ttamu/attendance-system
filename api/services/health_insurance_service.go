@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/t2469/attendance-system.git/models"
 	"gorm.io/gorm"
+	"math"
 )
 
 type HealthInsuranceResponse struct {
@@ -22,12 +23,15 @@ type HealthInsuranceResponse struct {
 // CalculateInsurance 指定された年・月をもとに健康保険料を計算する関数
 func CalculateInsurance(db *gorm.DB, employeeID uint, year, month int) (HealthInsuranceResponse, error) {
 	var employee models.Employee
-	if err := db.Preload("Company").First(&employee, employeeID).Error; err != nil {
+	if err := db.Preload("Company").Preload("Allowances", "year = ? AND month = ?", year, month).Preload("Allowances.AllowanceType").First(&employee, employeeID).Error; err != nil {
 		return HealthInsuranceResponse{}, err
 	}
 
 	age := calculateAge(employee.DateOfBirth)
 	withCare := age >= 40 && age < 65
+
+	totalAllowance := calculateTotalAllowance(employee.Allowances)
+	standardMonthlyAmount := employee.MonthlySalary + int(math.Round(totalAllowance))
 
 	prefectureID := employee.Company.PrefectureID
 	if prefectureID == 0 {
@@ -39,7 +43,7 @@ func CalculateInsurance(db *gorm.DB, employeeID uint, year, month int) (HealthIn
 		"prefecture_id = ? AND min_monthly_amount <= ? AND max_monthly_amount >= ? "+
 			"AND ((? > from_year) OR (? = from_year AND ? >= from_month)) "+
 			"AND ((? < to_year) OR (? = to_year AND ? <= to_month))",
-		prefectureID, employee.MonthlySalary, employee.MonthlySalary,
+		prefectureID, standardMonthlyAmount, standardMonthlyAmount,
 		year, year, month,
 		year, year, month,
 	).Order("from_year desc, from_month desc").

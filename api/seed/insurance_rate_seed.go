@@ -212,6 +212,10 @@ func SeedInsuranceRates(db *gorm.DB) error {
 					// 年金保険のグレードが存在する場合、PensionInsuranceRate レコードを作成 or 更新
 					if pensionGrade != "" {
 						var pRecord models.PensionInsuranceRate
+						// grade が "32" の場合は最大値を設定する（それ以外はExcelからの値をそのまま利用）
+						if pensionGrade == "32" {
+							maxAmt = int(math.MaxInt64)
+						}
 						pResult := db.Where(&models.PensionInsuranceRate{
 							PrefectureID: pref.ID,
 							Grade:        pensionGrade,
