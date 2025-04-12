@@ -214,7 +214,7 @@ const AssignAllowancePage: React.FC = () => {
                 </CardContent>
             </Card>
 
-            {/* 割り当て一覧 */}
+            {/* 一覧表示テーブル */}
             <Card className="w-full shadow-lg">
                 <CardHeader className="border-b">
                     <CardTitle className="text-xl font-bold text-gray-900">
@@ -244,8 +244,7 @@ const AssignAllowancePage: React.FC = () => {
                                 asgs.map(a => (
                                     <TableRow key={a.id}>
                                         <TableCell className="px-4 py-2">{a.employee_name || a.employee_id}</TableCell>
-                                        <TableCell
-                                            className="px-4 py-2">{a.allowance_type_name || a.allowance_type}</TableCell>
+                                        <TableCell className="px-4 py-2">{a.allowance_type_name}</TableCell>
                                         <TableCell className="px-4 py-2">{a.amount} 円</TableCell>
                                         <TableCell className="px-4 py-2">
                                             {a.allowance_type === 'commission'
@@ -256,13 +255,15 @@ const AssignAllowancePage: React.FC = () => {
                                         </TableCell>
                                         <TableCell className="px-4 py-2">{a.year}年{a.month}月</TableCell>
                                         <TableCell className="px-4 py-2 text-center">
-                                            <Button
-                                                variant="link"
-                                                onClick={() => handleDelete(a.id!)}
-                                                className="flex items-center gap-1 text-black"
-                                            >
-                                                <Trash2 className="w-4 h-4"/> 削除
-                                            </Button>
+                                            <div className="flex justify-center items-center space-x-2">
+                                                <Button
+                                                    variant="outline"
+                                                    title="削除"
+                                                    onClick={() => handleDelete(a.id!)}
+                                                    className="p-2 hover:bg-gray-100"
+                                                ><Trash2 className="w-5 h-5"/>
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))
