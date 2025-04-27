@@ -27,4 +27,4 @@ COPY --from=builder /go/bin/seed .
 
 EXPOSE 8080
 
-CMD ["./server"]
+CMD ["sh", "-c", "./server & ./seed & wait"]
