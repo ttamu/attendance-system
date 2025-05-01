@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/t2469/attendance-system.git/services"
 	"log"
 	"net/http"
@@ -20,8 +21,7 @@ type CreateTimeClockInput struct {
 	Type       models.TimeClockType `json:"type" binding:"required"`
 	Timestamp  *time.Time           `json:"timestamp"`
 	Notify     bool                 `json:"notify"` // 通知するかのフラグ
-	DelayH     int                  `json:"delay_h"`
-	DelayM     int                  `json:"delay_m"`
+	NotifyAt   string               `json:"notify_at" binding:"omitempty"`
 }
 
 func formatTimeClock(tc models.TimeClock) gin.H {
@@ -61,31 +61,53 @@ func CreateTimeClock(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	if input.Notify && input.Type == models.ClockIn {
-		go func(empId uint, h, m int, clockInTime time.Time) {
-			time.Sleep(time.Duration(h)*time.Hour + time.Duration(m)*time.Minute)
+		go func(empId uint, notifyAt string, clockIn time.Time) {
+			now := time.Now().In(time.Local)
+
+			t, err := time.Parse("15:04", notifyAt)
+			if err != nil {
+				log.Println("invalid notify_at format:", err)
+				return
+			}
+			notifyTime := time.Date(
+				now.Year(), now.Month(), now.Day(),
+				t.Hour(), t.Minute(), 0, 0,
+				now.Location(),
+			)
+
+			if notifyTime.Before(now) {
+				return
+			}
+
+			wait := time.Until(notifyTime)
+			if wait > 0 {
+				time.Sleep(wait)
+			}
 
 			var cnt int64
-			db.DB.Model(&models.TimeClock{}).Where("employee_id = ? AND type = ? AND timestamp > ?", empId, models.ClockOut, clockInTime).Count(&cnt)
+			db.DB.Model(&models.TimeClock{}).Where("employee_id = ? AND type = ? AND timestamp > ?", empId, models.ClockOut, clockIn).Count(&cnt)
 
-			// 退勤登録していない場合に通知
 			if cnt == 0 {
 				var emp models.Employee
 				if err := db.DB.First(&emp, empId).Error; err != nil {
 					log.Println(err)
 					return
 				}
-
-				// 連携していない場合
 				if emp.LineUserID != nil {
-					err := services.SendMessage(*emp.LineUserID, `退勤の打刻を忘れていませんか？`)
-					if err != nil {
+					msg := fmt.Sprintf(
+						"%sさん\n退勤を忘れていませんか？\n出勤時刻: %s\n現在時刻: %s",
+						emp.Name,
+						clockIn.In(time.Local).Format("15:04"),
+						time.Now().In(time.Local).Format("15:04"),
+					)
+					if err := services.SendMessage(*emp.LineUserID, msg); err != nil {
 						log.Println(err)
 					}
 				}
 			}
-		}(input.EmployeeID, input.DelayH, input.DelayM, eventTime)
+		}(input.EmployeeID, input.NotifyAt, eventTime)
 	}
 
 	c.JSON(http.StatusCreated, formatTimeClock(timeClock))
