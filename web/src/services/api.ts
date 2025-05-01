@@ -36,9 +36,16 @@ export async function fetchTimeClocks<T>(employeeId: number, year: number, month
     return fetchAPI<T>(`/time_clocks?employee_id=${employeeId}&year=${year}&month=${month}`);
 }
 
+export interface CreateTimeClockParams {
+    type: string;
+    timestamp: string;
+    notify?: boolean;
+    notify_at?: string;
+}
+
 export async function createTimeClock<T>(
     employeeId: string,
-    data: { type: string; timestamp: string; notify?: boolean; delay_h?: number; delay_m?: number }
+    data: CreateTimeClockParams
 ): Promise<T> {
     return fetchAPI<T>("/time_clocks", {
         method: 'POST',
@@ -48,8 +55,7 @@ export async function createTimeClock<T>(
             type: data.type,
             timestamp: data.timestamp,
             notify: data.notify,
-            delay_h: data.delay_h,
-            delay_m: data.delay_m,
+            notify_at: data.notify_at,
         }),
     });
 }
