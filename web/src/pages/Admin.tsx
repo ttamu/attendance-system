@@ -1,7 +1,7 @@
 import React from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Link, Outlet} from 'react-router-dom';
-import {ClipboardList, List, PlusCircle} from 'lucide-react';
+import {ClipboardList, List} from 'lucide-react';
 
 const Admin: React.FC = () => {
     return (
@@ -12,13 +12,6 @@ const Admin: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-col sm:flex-row gap-6 mb-8">
-                        <Link
-                            to="allowance-types"
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
-                        >
-                            <PlusCircle className="w-6 h-6 text-blue-600"/>
-                            <span className="text-blue-600 font-medium">手当タイプの追加・管理</span>
-                        </Link>
                         <Link
                             to="assign-allowance"
                             className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded hover:bg-blue-100 transition-colors"

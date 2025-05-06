@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
 import {
     createEmployeeAllowance,
     deleteEmployeeAllowance,
@@ -12,8 +13,9 @@ import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
 import {Label} from '@/components/ui/label';
-import {Trash2} from 'lucide-react';
+import {PlusCircle, Trash2} from 'lucide-react';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
+import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
 
 const AssignAllowancePage: React.FC = () => {
     const [emps, setEmps] = useState<Employee[]>([]);
@@ -136,25 +138,39 @@ const AssignAllowancePage: React.FC = () => {
                         </div>
                         <div>
                             <Label className="mb-1 text-gray-800">手当タイプ</Label>
-                            <select
-                                value={form.allowance_type_id ?? ""}
-                                onChange={e =>
-                                    setForm({
-                                        ...form,
-                                        allowance_type_id: e.target.value ? Number(e.target.value) : undefined
-                                    })
-                                }
-                                className="border p-2 w-full rounded"
-                                required
-                            >
-                                <option value="">選択してください</option>
-                                {types.map(t => (
-                                    <option key={t.id} value={t.id}>
-                                        {t.name} ({t.type === 'commission' ? '歩合制' : '固定'})
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="flex items-center space-x-2">
+                                <select
+                                    value={form.allowance_type_id ?? ""}
+                                    onChange={e =>
+                                        setForm({
+                                            ...form,
+                                            allowance_type_id: e.target.value ? Number(e.target.value) : undefined,
+                                        })
+                                    }
+                                    className="border p-2 rounded flex-1"
+                                    required
+                                >
+                                    <option value="">選択してください</option>
+                                    {types.map(t => (
+                                        <option key={t.id} value={t.id}>
+                                            {t.name} ({t.type === 'commission' ? '歩合制' : '固定'})
+                                        </option>
+                                    ))}
+                                </select>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Link
+                                            to="../allowance-types"
+                                            className="flex items-center justify-center w-10 h-10 border rounded hover:bg-gray-100"
+                                        >
+                                            <PlusCircle className="w-5 h-5 text-gray-500"/>
+                                        </Link>
+                                    </TooltipTrigger>
+                                    <TooltipContent>手当タイプの追加</TooltipContent>
+                                </Tooltip>
+                            </div>
                         </div>
+
                         <div>
                             <Label className="mb-1 text-gray-800">金額</Label>
                             <Input
