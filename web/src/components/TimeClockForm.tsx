@@ -5,6 +5,7 @@ import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Tooltip, TooltipContent, TooltipTrigger} from "@/components/ui/tooltip";
 import {Bell, BellOff, Clock, Coffee, LogIn, LogOut} from "lucide-react";
 
 interface TimeClockFormProps {
@@ -61,24 +62,38 @@ const TimeClockForm: React.FC<TimeClockFormProps> = ({employeeId, onTimeClockAdd
                 )}
 
                 <div className="flex flex-wrap gap-4">
-                    <Button onClick={() => setUseTime((p) => !p)}
-                            className={`w-10 h-10 rounded-full p-2 ${useTime ? "bg-blue-500" : "bg-gray-300"}`}>
-                        <Clock className="w-5 h-5 text-white"/>
-                    </Button>
-                    <Button
-                        onClick={() => setNotify((p) => !p)}
-                        disabled={!isLineLinked}
-                        className={`w-10 h-10 rounded-full p-2 ${notify ? "bg-green-600" : "bg-gray-300"} ${!isLineLinked ? "opacity-50 cursor-not-allowed" : ""}`}
-                    >
-                        {notify ? <Bell className="w-5 h-5 text-white"/> : <BellOff className="w-5 h-5 text-white"/>}
-                    </Button>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button onClick={() => setUseTime((p) => !p)}
+                                    className={`w-10 h-10 rounded-full p-2 ${useTime ? "bg-blue-500" : "bg-gray-300"}`}>
+                                <Clock className="w-5 h-5 text-white"/>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>任意の日時を指定</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            {isLineLinked ? (
+                                <Button onClick={() => setNotify((p) => !p)} disabled={!isLineLinked}
+                                        className={`w-10 h-10 rounded-full p-2 ${notify ? "bg-green-600" : "bg-gray-300"} ${!isLineLinked ? "opacity-50 cursor-not-allowed" : ""}`}>
+                                    {notify ? <Bell className="w-5 h-5 text-white"/> :
+                                        <BellOff className="w-5 h-5 text-white"/>}
+                                </Button>
+                            ) : (
+                                <span className="inline-block">
+                  <Button disabled className="w-10 h-10 rounded-full p-2 bg-gray-300 opacity-50 cursor-not-allowed">
+                    <BellOff className="w-5 h-5 text-white"/>
+                  </Button>
+                </span>
+                            )}
+                        </TooltipTrigger>
+                        <TooltipContent>{isLineLinked ? "LINEのリマインダー設定" : "LINE連携してください"}</TooltipContent>
+                    </Tooltip>
                 </div>
 
                 <div
                     className={`transition-all duration-300 overflow-hidden ${useTime ? "max-h-24 opacity-100 mt-2" : "max-h-0 opacity-0"}`}>
-                    <Label htmlFor="customTime" className="block mb-1">
-                        指定日時
-                    </Label>
+                    <Label htmlFor="customTime" className="block mb-1">指定日時</Label>
                     <Input type="datetime-local" id="customTime" value={customTime}
                            onChange={(e) => setCustomTime(e.target.value)} className="w-full"/>
                 </div>
@@ -88,28 +103,18 @@ const TimeClockForm: React.FC<TimeClockFormProps> = ({employeeId, onTimeClockAdd
                         <Label className="block mb-1">通知時刻</Label>
                         <div className="flex items-center space-x-2">
                             <Select onValueChange={setNotifyHour} value={notifyHour}>
-                                <SelectTrigger className="w-24 px-2 py-1 text-center">
-                                    <SelectValue placeholder="HH"/>
-                                </SelectTrigger>
+                                <SelectTrigger className="w-24 px-2 py-1 text-center"> <SelectValue
+                                    placeholder="HH"/></SelectTrigger>
                                 <SelectContent className="max-h-60 overflow-auto">
-                                    {hours.map((h) => (
-                                        <SelectItem key={h} value={h}>
-                                            {h}
-                                        </SelectItem>
-                                    ))}
+                                    {hours.map((h) => (<SelectItem key={h} value={h}>{h}</SelectItem>))}
                                 </SelectContent>
                             </Select>
                             <span>:</span>
                             <Select onValueChange={setNotifyMinute} value={notifyMinute}>
-                                <SelectTrigger className="w-24 px-2 py-1 text-center">
-                                    <SelectValue placeholder="MM"/>
-                                </SelectTrigger>
+                                <SelectTrigger className="w-24 px-2 py-1 text-center"> <SelectValue
+                                    placeholder="MM"/></SelectTrigger>
                                 <SelectContent className="max-h-60 overflow-auto">
-                                    {minutes.map((m) => (
-                                        <SelectItem key={m} value={m}>
-                                            {m}
-                                        </SelectItem>
-                                    ))}
+                                    {minutes.map((m) => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
                                 </SelectContent>
                             </Select>
                         </div>
