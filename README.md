@@ -52,16 +52,4 @@ Password: password
 
 画面右上のアイコンから管理者ページへアクセス可能です。  
 <img src="images/attendance-system.png" alt="Attendance System UI" width="400" />
-
----
-
-## 使用技術
-
-| 分類          | 技術・ツール                                                        |
-|-------------|---------------------------------------------------------------|
-| **フロントエンド** | React, TypeScript, Tailwind CSS, shadcn/ui, Vite              |
-| **バックエンド**  | Go (Gin Framework, GORM), PostgreSQL                          |
-| **インフラ**    | Docker, Docker Compose                                        |
-| **クラウド環境**  | AWS (S3, CloudFront, ECS [Fargate], ALB, NATインスタンス[EC2], RDS) |
-| **IaC**     | Terraform                                                     |
-| **認証**      | JWT認証（Cookieベース）                                              |
+                                          |
